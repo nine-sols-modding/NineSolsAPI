@@ -1,4 +1,6 @@
 ﻿using BepInEx;
+using BepInEx.Logging;
+using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -16,9 +18,12 @@ public class NineSolsAPICore : BaseUnityPlugin {
     internal static NineSolsAPICore Instance = null!;
     private Canvas fullscreenCanvas = null!;
     internal ToastManager ToastManager = null!;
+    private Harmony harmony = null!;
 
     private void Awake() {
         Instance = this;
+        Log.Init(Logger);
+        harmony = Harmony.CreateAndPatchAll(typeof(Patches), PluginGUID);
         fullscreenCanvas = CreateFullscreenCanvas();
         ToastManager = new ToastManager();
 
@@ -26,6 +31,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
     }
 
     private void OnDestroy() {
+        harmony.UnpatchSelf();
         Destroy(FullscreenCanvas.gameObject);
 
         Logger.LogInfo("Nine Sols API unloaded");
