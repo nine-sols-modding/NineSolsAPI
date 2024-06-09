@@ -27,6 +27,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
         fullscreenCanvas = CreateFullscreenCanvas();
         ToastManager = new ToastManager();
 
+        RCGLifeCycle.DontDestroyForever(gameObject);
         Logger.LogInfo("Nine Sols API loaded");
     }
 
