@@ -9,7 +9,7 @@ namespace NineSolsAPI;
 [PublicAPI]
 [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
 public class NineSolsAPICore : BaseUnityPlugin {
-    public const string PluginGUID = "ninesolsapi.core";
+    public const string PluginGUID = "ninesolsapi";
     public const string PluginName = "NineSolsAPI";
     public const string PluginVersion = "1.0.0";
 

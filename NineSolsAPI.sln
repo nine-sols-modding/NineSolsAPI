@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NineSolsAPI.Core", "NineSolsAPI.Core\NineSolsAPI.Core.csproj", "{8BACD758-9C48-46E7-BEB9-754D7D3D30C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NineSolsAPI", "NineSolsAPI\NineSolsAPI.csproj", "{8BACD758-9C48-46E7-BEB9-754D7D3D30C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
