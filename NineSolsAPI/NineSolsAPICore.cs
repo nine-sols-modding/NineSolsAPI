@@ -19,6 +19,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
     internal static NineSolsAPICore Instance = null!;
     private Canvas fullscreenCanvas = null!;
     internal ToastManager ToastManager = null!;
+    internal KeybindManager KeybindManager = new();
     private TitlescreenModifications titlescreenModifications = new();
     private Harmony harmony = null!;
 
@@ -36,6 +37,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
     }
 
     private void OnDestroy() {
+        KeybindManager.Unload();
         titlescreenModifications.Unload();
         Destroy(FullscreenCanvas.gameObject);
         harmony.UnpatchSelf();
@@ -45,6 +47,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
 
     private void Update() {
         ToastManager.Update();
+        KeybindManager.Update();
     }
 
     private Canvas CreateFullscreenCanvas() {
