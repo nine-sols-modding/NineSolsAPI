@@ -34,7 +34,10 @@ public class ToastManager {
 
     [PublicAPI]
     public static void Toast(object message) {
-        NineSolsAPICore.Instance.ToastManager.AddToastMessage(message.ToString());
+        Log.Info(message == null);
+        Log.Info(message?.ToString() == null);
+        Log.Info(message?.ToString() ?? "null");
+        NineSolsAPICore.Instance.ToastManager.AddToastMessage(message?.ToString() ?? "null");
     }
 
     private float Now => Time.realtimeSinceStartup;

@@ -13,4 +13,10 @@ public class Patches {
         Log.Info($"Prevented Achievement '{__instance.name}' from activating.");
         return false;
     }
+
+    [HarmonyPatch(typeof(VersionText), "Start")]
+    [HarmonyPostfix]
+    private static void Version(ref VersionText __instance) {
+        __instance.text.text = $"Modding API: {NineSolsAPICore.PluginVersion}\n{__instance.text.text}";
+    }
 }
