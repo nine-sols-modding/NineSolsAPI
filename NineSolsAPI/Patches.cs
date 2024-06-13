@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
+using UnityEngine.UI;
 
 namespace NineSolsAPI;
 
@@ -17,6 +18,11 @@ public class Patches {
     [HarmonyPatch(typeof(VersionText), "Start")]
     [HarmonyPostfix]
     private static void Version(ref VersionText __instance) {
-        __instance.text.text = $"Modding API: {NineSolsAPICore.PluginVersion}\n{__instance.text.text}";
+        var prefix = $"Modding API: {NineSolsAPICore.PluginVersion}";
+
+        if (__instance.text != null)
+            __instance.text.text = $"{prefix}\n{__instance.text.text}";
+        else
+            __instance.TMPtext.text = $"{prefix}\n{__instance.TMPtext.text}";
     }
 }
