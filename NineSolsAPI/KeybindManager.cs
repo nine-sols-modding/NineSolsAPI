@@ -6,6 +6,7 @@ using Input = UnityEngine.Input;
 namespace NineSolsAPI;
 
 internal class KeyBind {
+    public MonoBehaviour Owner;
     public KeyCode[] Keys;
     public Action Action;
 }
@@ -17,17 +18,23 @@ public class KeybindManager {
         keybindings.Clear();
     }
 
-    public static void Add(Action action, params KeyCode[] keys) {
-        NineSolsAPICore.Instance.KeybindManager.AddKeybind(action, keys);
+    public static void Add(MonoBehaviour owner, Action action, params KeyCode[] keys) {
+        NineSolsAPICore.Instance.KeybindManager.AddKeybind(owner, action, keys);
     }
 
-    private void AddKeybind(Action action, params KeyCode[] keys) {
+    private void AddKeybind(MonoBehaviour owner, Action action, params KeyCode[] keys) {
         if (keys.Length == 0) throw new Exception("zero keys");
-        keybindings.Add(new KeyBind() { Action = action, Keys = keys });
+        keybindings.Add(new KeyBind() { Owner = owner, Action = action, Keys = keys });
     }
 
     internal void Update() {
+        var someOutdated = false;
         foreach (var keybind in keybindings) {
+            if (!keybind.Owner) {
+                someOutdated = true;
+                continue;
+            }
+
             var pressed = true;
 
             var hasControl = false;
@@ -51,7 +58,18 @@ public class KeybindManager {
             if (!hasShift && Input.GetKey(KeyCode.LeftShift)) pressed = false;
             if (!hasAlt && Input.GetKey(KeyCode.LeftAlt)) pressed = false;
 
-            if (pressed) keybind.Action.Invoke();
+            if (!pressed) continue;
+
+            try {
+                keybind.Action.Invoke();
+            } catch (Exception e) {
+                Log.Error($"Failed to run action: {e}");
+            }
+        }
+
+        if (someOutdated) {
+            var removed = keybindings.RemoveAll(keybinding => !keybinding.Owner);
+            if (removed != 0) ToastManager.Toast(removed);
         }
     }
 }
