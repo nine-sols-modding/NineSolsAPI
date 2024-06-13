@@ -29,12 +29,27 @@ public class KeybindManager {
     internal void Update() {
         foreach (var keybind in keybindings) {
             var pressed = true;
+
+            var hasControl = false;
+            var hasShift = false;
+            var hasAlt = false;
+
             for (var i = 0; i < keybind.Keys.Length; i++) {
                 var key = keybind.Keys[i];
+
+                // TODO refactor this
+                hasShift |= key == KeyCode.LeftShift;
+                hasControl |= key == KeyCode.LeftControl;
+                hasAlt |= key == KeyCode.LeftAlt;
+
                 var last = i == keybind.Keys.Length - 1;
 
                 pressed &= last ? Input.GetKeyDown(key) : Input.GetKey(key);
             }
+
+            if (!hasControl && Input.GetKey(KeyCode.LeftControl)) pressed = false;
+            if (!hasShift && Input.GetKey(KeyCode.LeftShift)) pressed = false;
+            if (!hasAlt && Input.GetKey(KeyCode.LeftAlt)) pressed = false;
 
             if (pressed) keybind.Action.Invoke();
         }
