@@ -1,4 +1,3 @@
-using HarmonyLib;
 using I2.Loc;
 using TMPro;
 using UnityEngine;
@@ -13,25 +12,17 @@ internal class TitlescreenModifications {
     private UIControlButton button;
 
     public void Load() {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-
-        MaybeExtendMainMenu();
+        MaybeExtendMainMenu(SceneManager.GetActiveScene());
     }
 
     public void Unload() {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-
         if (button) Object.Destroy(button.gameObject);
         if (group) Object.Destroy(group.gameObject);
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
-        MaybeExtendMainMenu();
-    }
 
-
-    private void MaybeExtendMainMenu() {
-        if (SceneManager.GetActiveScene().name != "TitleScreenMenu") return;
+    public void MaybeExtendMainMenu(Scene scene) {
+        if (scene.name != "TitleScreenMenu") return;
         if (button) return;
 
         group = CreateUiControlGroup();

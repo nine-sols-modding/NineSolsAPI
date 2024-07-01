@@ -34,6 +34,7 @@ public class ToastManager {
 
     [PublicAPI]
     public static void Toast(object message) {
+        Log.Info($"Toast: {message}");
         NineSolsAPICore.Instance.ToastManager.AddToastMessage(message?.ToString() ?? "null");
     }
 

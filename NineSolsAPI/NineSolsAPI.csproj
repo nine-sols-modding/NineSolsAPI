@@ -42,6 +42,9 @@
         <Reference Include="I2">
             <HintPath>$(NineSolsPath)/NineSols_Data/Managed/I2.dll</HintPath>
         </Reference>
+        <Reference Include="AK.Wwise.Unity.API">
+            <HintPath>$(NineSolsPath)/NineSols_Data/Managed/AK.Wwise.Unity.API.dll</HintPath>
+        </Reference>
         <Reference Include="Unity.TextMeshPro">
             <HintPath>$(NineSolsPath)/NineSols_Data/Managed/Unity.TextMeshPro.dll</HintPath>
         </Reference>

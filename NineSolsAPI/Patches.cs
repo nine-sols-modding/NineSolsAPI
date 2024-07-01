@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
+using NineSolsAPI.Preload;
 using UnityEngine.UI;
 
 namespace NineSolsAPI;
@@ -25,4 +26,13 @@ public class Patches {
         else
             __instance.TMPtext.text = $"{prefix}\n{__instance.TMPtext.text}";
     }
+
+    [HarmonyPatch(typeof(LogoLogic), nameof(LogoLogic.PaddingForApplicationStartUp))]
+    [HarmonyPrefix]
+    private static bool PaddingForShowNext() => false;
+
+
+    [HarmonyPatch(typeof(GameLevel), nameof(GameLevel.Awake))]
+    [HarmonyPrefix]
+    private static bool GameLevelAwake() => !Preloader.IsPreloading;
 }
