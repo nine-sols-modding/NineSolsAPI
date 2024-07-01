@@ -69,7 +69,6 @@ public class KeybindManager {
 
         if (someOutdated) {
             var removed = keybindings.RemoveAll(keybinding => !keybinding.Owner);
-            if (removed != 0) ToastManager.Toast(removed);
         }
     }
 }
