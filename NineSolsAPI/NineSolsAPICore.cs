@@ -36,9 +36,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
         }
     }
 
-    public static void AddPreloadClass<T>(T obj) {
-        Instance.preloader.AddPreloadClass(obj);
-    }
+    public static Preloader Preloader => Instance.preloader;
 
     private void Awake() {
         Instance = this;
@@ -51,8 +49,6 @@ public class NineSolsAPICore : BaseUnityPlugin {
         titlescreenModifications.Load();
         SceneManager.sceneLoaded += OnSceneLoaded;
 
-        StartCoroutine(preloader.Preload());
-
         RCGLifeCycle.DontDestroyForever(gameObject);
         Logger.LogInfo("Nine Sols API loaded");
     }
@@ -60,6 +56,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
 
     private void Start() {
         Invoke(nameof(AfterStart), 0);
+        StartCoroutine(preloader.Preload());
     }
 
     private void AfterStart() {
@@ -108,6 +105,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
 
     private RectTransform CreateProgressBar() {
         var progressContainer = new GameObject();
+        // progressContainer.SetActive(false);
         progressContainer.transform.SetParent(FullscreenCanvas.transform);
         var progressContainerImg = progressContainer.AddComponent<Image>();
         progressContainerImg.sprite = NullSprite([0xff, 0xff, 0xff, 0xff]);
@@ -144,6 +142,11 @@ public class NineSolsAPICore : BaseUnityPlugin {
 
     private void SetProgress(float progress) {
         if (!progressBar) return;
+
+        if (!progressBar.gameObject.activeSelf)
+            if (progress != 0 && progress < 1.0)
+                progressBar.parent.gameObject.SetActive(true);
+
         progressBar.sizeDelta = progressBar.sizeDelta with { x = ProgressWidth * progress };
     }
 }

@@ -10,37 +10,87 @@ using Object = UnityEngine.Object;
 
 namespace NineSolsAPI.Preload;
 
-internal class Preloader(Action<float> onProgress) {
-    private const int PreloadBatchSize = 5; // TODO choose a good number
+public interface IPreloadTarget {
+    void Set(GameObject preloaded, string scene, string path);
 
-    [PublicAPI] public static bool IsPreloading = false;
+    void Unset(GameObject preloaded);
 
-    private Dictionary<string, List<(string, object instance, FieldInfo field)>> preloadTypes = [];
+    class ReflectionPreloadTarget(object instance, FieldInfo field) : IPreloadTarget {
+        public void Set(GameObject preloaded, string scene, string path) {
+            field.SetValue(instance, preloaded);
+        }
+
+        public void Unset(GameObject preloaded) {
+            field.SetValue(instance, null);
+        }
+    }
+
+    class ListPreloadTarget(List<GameObject> preloads) : IPreloadTarget {
+        public void Set(GameObject preloaded, string scene, string path) {
+            preloads.Add(preloaded);
+        }
+
+        public void Unset(GameObject preloaded) {
+            preloads.Clear();
+        }
+    }
+}
+
+[PublicAPI]
+public class Preloader(Action<float> onProgress) {
+    private const int PreloadBatchSize = 4; // TODO choose a good number
+
+    public static bool IsPreloading = false;
+
+    private Dictionary<string, List<(string, IPreloadTarget)>> preloadTypes = [];
+
+
+    public void AddPreload(string scene, string path, IPreloadTarget target) {
+        if (!preloadTypes.TryGetValue(scene, out var scenePreloads)) {
+            scenePreloads = [];
+            preloadTypes.Add(scene, scenePreloads);
+        }
+
+        scenePreloads.Add((path, target));
+    }
+
+    public void AddPreloadList(IEnumerable<(string, string)> paths, List<GameObject> outList) {
+        var listTarget = new IPreloadTarget.ListPreloadTarget(outList);
+        foreach (var (scene, path) in paths) AddPreload(scene, path, listTarget);
+    }
 
     public void AddPreloadClass<T>(T obj) {
+        if (IsPreloading) {
+            Log.Error("tried to call AddPreloadClass during preloading");
+            return;
+        }
+
         var fields = obj.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
         foreach (var field in fields) {
             var preloadAttr = field.GetCustomAttribute<PreloadAttribute>();
             if (preloadAttr is null) continue;
 
-            if (!preloadTypes.TryGetValue(preloadAttr.Scene, out var scenePreloads)) {
-                scenePreloads = [];
-                preloadTypes.Add(preloadAttr.Scene, scenePreloads);
-            }
-
-            scenePreloads.Add((preloadAttr.Path, obj, field));
+            AddPreload(preloadAttr.Scene, preloadAttr.Path, new IPreloadTarget.ReflectionPreloadTarget(obj, field));
         }
     }
 
     private bool preloaded = false;
-    private List<GameObject> preloadObjs = [];
+    private List<(GameObject, IPreloadTarget)> preloadObjs = [];
 
     private List<AsyncOperation> preloadOperationQueue = [];
     private List<AsyncOperation> inProgressLoads = [];
     private List<AsyncOperation> inProgressUnloads = [];
 
-    private IEnumerator DoPreloadScene(string sceneName, List<(string, object, FieldInfo)> scenePreloads) {
+    private int target;
+
+    private IEnumerator DoPreloadScene(string sceneName, List<(string, IPreloadTarget)> scenePreloads) {
         var loadOp = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+        if (loadOp == null) {
+            ToastManager.Toast($"Error loading scene: {sceneName}");
+            target -= 1;
+            yield break;
+        }
+
         preloadOperationQueue.Add(loadOp);
         inProgressLoads.Add(loadOp);
         yield return loadOp;
@@ -50,16 +100,21 @@ internal class Preloader(Action<float> onProgress) {
             var rootObjects = scene.GetRootGameObjects();
             foreach (var rootObj in rootObjects) rootObj.SetActive(false);
 
-            foreach (var (path, instance, instanceField) in scenePreloads) {
+            foreach (var (path, preloadTarget) in scenePreloads) {
                 var obj = ObjectUtils.GetGameObjectFromArray(rootObjects, path);
-                if (obj is null) throw new Exception($"could not preload {path} in {sceneName}");
+                if (obj is null) {
+                    Log.Error($"could not preload {path} in {sceneName}");
+                    preloadTarget.Set(null, sceneName, path);
+                    continue;
+                }
 
                 var copy = Object.Instantiate(obj);
+                copy.SetActive(false);
                 Object.DontDestroyOnLoad(copy);
                 AutoAttributeManager.AutoReference(copy);
 
-                preloadObjs.Add(copy);
-                instanceField.SetValue(instance, copy);
+                preloadObjs.Add((copy, preloadTarget));
+                preloadTarget.Set(copy, sceneName, path);
             }
         } catch (Exception e) {
             Log.Error(e);
@@ -81,7 +136,7 @@ internal class Preloader(Action<float> onProgress) {
         IsPreloading = true;
         DestroyAllGameObjects.DestroyingAll = true; // to prevent SingletonBehaviour initialization
         try {
-            var target = preloadTypes.Count;
+            target = preloadTypes.Count;
             var preloadsToDo = preloadTypes.GetEnumerator();
 
             float progress = 0;
@@ -90,6 +145,13 @@ internal class Preloader(Action<float> onProgress) {
                 while (preloadOperationQueue.Count < PreloadBatchSize && preloadsToDo.MoveNext()) {
                     var (sceneName, scenePreloads) = preloadsToDo.Current;
                     NineSolsAPICore.Instance.StartCoroutine(DoPreloadScene(sceneName, scenePreloads));
+
+                    if (inProgressLoads.Count % 4 == 0) {
+                        var watchRes = System.Diagnostics.Stopwatch.StartNew();
+                        yield return Resources.UnloadUnusedAssets();
+                        watchRes.Stop();
+                        Log.Info($"collecting resources in ${watchRes.ElapsedMilliseconds}");
+                    }
                 }
 
                 yield return null;
@@ -98,7 +160,7 @@ internal class Preloader(Action<float> onProgress) {
                 var progressSum = inProgressLoads.Sum(loadOp => loadOp.progress * loadUnloadWorkRatio);
                 progressSum += inProgressUnloads.Sum(loadOp => loadOp.progress * (1 - loadUnloadWorkRatio));
 
-                progress = progressSum / target;
+                progress = target == 0 ? 1 : progressSum / target;
                 onProgress(progress);
 
                 Log.Info($"progress {progress}/1, in flight {preloadOperationQueue.Count}");
@@ -118,16 +180,21 @@ internal class Preloader(Action<float> onProgress) {
     }
 
 
-    public IEnumerator Preload() {
+    internal IEnumerator Preload() {
         // TODO: support preload hot reloading anywhere
         if (!preloaded || SceneManager.GetActiveScene().name == "TitleScreenMenu")
             yield return DoPreload();
+
+        onProgress(1.0f);
     }
 
-    public void Unload() {
-        foreach (var obj in preloadObjs)
+    internal void Unload() {
+        foreach (var (obj, target) in preloadObjs) {
             if (obj)
                 Object.Destroy(obj);
+            target.Unset(obj);
+        }
+
         preloadObjs.Clear();
     }
 }
