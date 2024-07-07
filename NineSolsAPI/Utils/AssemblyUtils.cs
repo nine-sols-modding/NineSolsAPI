@@ -33,4 +33,13 @@ public static class AssemblyUtils {
 
         return AssetBundle.LoadFromMemory(memoryStream.ToArray());
     }
+
+    public static T? GetEmbeddedJson<T>(string name) {
+        var assembly = Assembly.GetCallingAssembly();
+        var stream = GetEmbeddedResource(assembly, name);
+        if (stream is null) return default;
+
+        using var reader = new StreamReader(stream);
+        return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
+    }
 }

@@ -53,6 +53,9 @@
         <Reference Include="UnityEngine.UI">
             <HintPath>$(NineSolsPath)/NineSols_Data/Managed/UnityEngine.UI.dll</HintPath>
         </Reference>
+        <Reference Include="Newtonsoft.Json">
+            <HintPath>$(NineSolsPath)/NineSols_Data/Managed/Newtonsoft.Json.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <Target Name="CopyMod" AfterTargets="PostBuildEvent">
