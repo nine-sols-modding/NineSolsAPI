@@ -9,16 +9,16 @@ using UnityEngine.UI;
 namespace NineSolsAPI.Menu;
 
 internal class TitlescreenModifications {
-    private UIControlGroup group;
-    private UIControlButton button;
+    private UIControlGroup? group;
+    private UIControlButton? button;
 
     public void Load() {
         MaybeExtendMainMenu(SceneManager.GetActiveScene());
     }
 
     public void Unload() {
-        if (button) Object.Destroy(button.gameObject);
-        if (group) Object.Destroy(group.gameObject);
+        if (button != null) Object.Destroy(button.gameObject);
+        if (group != null) Object.Destroy(group.gameObject);
     }
 
 
@@ -85,7 +85,7 @@ internal class TitlescreenModifications {
         padding.AddComponent<LayoutElement>().minHeight = 0;
         padding.transform.SetParent(layout.transform, false);
 
-        var buttonOrig = ObjectUtils.FindDisabledByName<Button>("Show HUD");
+        var buttonOrig = ObjectUtils.FindDisabledByName<Button>("Show HUD")!;
 
         foreach (var plugin in BepInEx.Bootstrap.Chainloader.PluginInfos) {
             var c = ObjectUtils.InstantiateAutoReference(buttonOrig.gameObject, layout.transform);

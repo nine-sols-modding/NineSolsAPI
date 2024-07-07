@@ -12,12 +12,12 @@ using Object = UnityEngine.Object;
 namespace NineSolsAPI.Preload;
 
 public interface IPreloadTarget {
-    void Set(GameObject preloaded, string scene, string path);
+    void Set(GameObject? preloaded, string scene, string path);
 
     void Unset(GameObject preloaded);
 
     class ReflectionPreloadTarget(object instance, FieldInfo field) : IPreloadTarget {
-        public void Set(GameObject preloaded, string scene, string path) {
+        public void Set(GameObject? preloaded, string scene, string path) {
             field.SetValue(instance, preloaded);
         }
 
@@ -26,8 +26,8 @@ public interface IPreloadTarget {
         }
     }
 
-    class ListPreloadTarget(List<GameObject> preloads) : IPreloadTarget {
-        public void Set(GameObject preloaded, string scene, string path) {
+    class ListPreloadTarget(List<GameObject?> preloads) : IPreloadTarget {
+        public void Set(GameObject? preloaded, string scene, string path) {
             preloads.Add(preloaded);
         }
 
@@ -55,7 +55,7 @@ public class Preloader(Action<float> onProgress) {
         scenePreloads.Add((path, target));
     }
 
-    public void AddPreloadList(IEnumerable<(string, string)> paths, List<GameObject> outList) {
+    public void AddPreloadList(IEnumerable<(string, string)> paths, List<GameObject?> outList) {
         var listTarget = new IPreloadTarget.ListPreloadTarget(outList);
         foreach (var (scene, path) in paths) AddPreload(scene, path, listTarget);
     }
@@ -66,7 +66,7 @@ public class Preloader(Action<float> onProgress) {
             return;
         }
 
-        var fields = obj.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        var fields = obj!.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
         foreach (var field in fields) {
             var preloadAttr = field.GetCustomAttribute<PreloadAttribute>();
             if (preloadAttr is null) continue;

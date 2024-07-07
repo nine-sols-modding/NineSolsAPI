@@ -27,7 +27,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
     private TitlescreenModifications titlescreenModifications = new();
     private Harmony harmony = null!;
 
-    private RectTransform progressBar;
+    private RectTransform? progressBar;
 
     private float LoadProgress {
         set {
@@ -64,10 +64,11 @@ public class NineSolsAPICore : BaseUnityPlugin {
     }
 
     private void OnLoadDone() {
-        if (!progressBar) return;
+        if (progressBar == null) return;
 
         Destroy(progressBar.parent.gameObject);
         progressBar = null;
+
         SceneManager.LoadScene("TitleScreenMenu");
     }
 
@@ -131,7 +132,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
 
         return progressTransform;
 
-        static Sprite NullSprite(byte[] data = null) {
+        static Sprite NullSprite(byte[]? data = null) {
             var tex = new Texture2D(1, 1);
             data ??= [0x00, 0x00, 0x00, 0x00];
             tex.LoadRawTextureData(data);
@@ -141,7 +142,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
     }
 
     private void SetProgress(float progress) {
-        if (!progressBar) return;
+        if (progressBar == null) return;
 
         if (!progressBar.gameObject.activeSelf)
             if (progress != 0 && progress < 1.0)

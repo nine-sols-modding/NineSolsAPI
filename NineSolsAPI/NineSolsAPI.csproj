@@ -5,6 +5,7 @@
         <RepositoryUrl>https://github.com/nine-sols-modding/NineSolsAPI</RepositoryUrl>
         <Description>Nine Sols Modding API</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Nullable>enable</Nullable>
         <NoWarn>MSB3277</NoWarn>
 
         <TargetFramework>netstandard2.1</TargetFramework>

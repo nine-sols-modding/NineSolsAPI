@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Linq;
 using JetBrains.Annotations;
@@ -10,7 +9,7 @@ namespace NineSolsAPI.Utils;
 
 [PublicAPI]
 public static class ObjectUtils {
-    public static GameObject InstantiateAutoReference(GameObject orig, Transform parent,
+    public static GameObject InstantiateAutoReference(GameObject orig, Transform? parent,
         bool autoReferenceChildren = true) {
         var copy = Object.Instantiate(orig, parent, false);
         if (!copy) return copy;
