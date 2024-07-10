@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using BepInEx.Configuration;
+using JetBrains.Annotations;
 using UnityEngine;
 using Input = UnityEngine.Input;
 
@@ -7,7 +9,7 @@ namespace NineSolsAPI;
 
 internal class KeyBind {
     public MonoBehaviour Owner;
-    public KeyCode[] Keys;
+    public KeyboardShortcut Shortcut;
     public Action Action;
 }
 
@@ -18,13 +20,15 @@ public class KeybindManager {
         keybindings.Clear();
     }
 
-    public static void Add(MonoBehaviour owner, Action action, params KeyCode[] keys) {
-        NineSolsAPICore.Instance.KeybindManager.AddKeybind(owner, action, keys);
+    public static void Add(MonoBehaviour owner, Action action, KeyCode mainKey, KeyCode[] modifiers = null) {
+        NineSolsAPICore.Instance.KeybindManager.AddKeybind(owner, action, new KeyboardShortcut(mainKey, modifiers ?? []));
+    }
+    public static void Add(MonoBehaviour owner, Action action, KeyboardShortcut shortcut) {
+        NineSolsAPICore.Instance.KeybindManager.AddKeybind(owner, action, shortcut);
     }
 
-    private void AddKeybind(MonoBehaviour owner, Action action, params KeyCode[] keys) {
-        if (keys.Length == 0) throw new Exception("zero keys");
-        keybindings.Add(new KeyBind() { Owner = owner, Action = action, Keys = keys });
+    private void AddKeybind(MonoBehaviour owner, Action action, KeyboardShortcut shortcut) {
+        keybindings.Add(new KeyBind() { Owner = owner, Action = action, Shortcut = shortcut });
     }
 
     internal void Update() {
@@ -35,30 +39,7 @@ public class KeybindManager {
                 continue;
             }
 
-            var pressed = true;
-
-            var hasControl = false;
-            var hasShift = false;
-            var hasAlt = false;
-
-            for (var i = 0; i < keybind.Keys.Length; i++) {
-                var key = keybind.Keys[i];
-
-                // TODO refactor this
-                hasShift |= key == KeyCode.LeftShift;
-                hasControl |= key == KeyCode.LeftControl;
-                hasAlt |= key == KeyCode.LeftAlt;
-
-                var last = i == keybind.Keys.Length - 1;
-
-                pressed &= last ? Input.GetKeyDown(key) : Input.GetKey(key);
-            }
-
-            if (!hasControl && Input.GetKey(KeyCode.LeftControl)) pressed = false;
-            if (!hasShift && Input.GetKey(KeyCode.LeftShift)) pressed = false;
-            if (!hasAlt && Input.GetKey(KeyCode.LeftAlt)) pressed = false;
-
-            if (!pressed) continue;
+            if (!keybind.Shortcut.IsPressed()) continue;
 
             try {
                 keybind.Action.Invoke();
@@ -68,7 +49,7 @@ public class KeybindManager {
         }
 
         if (someOutdated) {
-            var removed = keybindings.RemoveAll(keybinding => !keybinding.Owner);
+            keybindings.RemoveAll(keybinding => !keybinding.Owner);
         }
     }
 }
