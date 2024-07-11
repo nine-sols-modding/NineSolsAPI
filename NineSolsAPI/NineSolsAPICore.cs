@@ -106,7 +106,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
 
     private RectTransform CreateProgressBar() {
         var progressContainer = new GameObject();
-        // progressContainer.SetActive(false);
+        progressContainer.SetActive(false);
         progressContainer.transform.SetParent(FullscreenCanvas.transform);
         var progressContainerImg = progressContainer.AddComponent<Image>();
         progressContainerImg.sprite = NullSprite([0xff, 0xff, 0xff, 0xff]);
