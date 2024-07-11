@@ -4,16 +4,16 @@ using System.Collections.Generic;
 using BepInEx.Configuration;
 using JetBrains.Annotations;
 using UnityEngine;
-using Input = UnityEngine.Input;
 
 namespace NineSolsAPI;
 
 internal class KeyBind {
     public MonoBehaviour Owner;
-    public KeyboardShortcut Shortcut;
+    public Func<KeyboardShortcut> Shortcut;
     public Action Action;
 }
 
+[PublicAPI]
 public class KeybindManager {
     private List<KeyBind> keybindings = [];
 
@@ -21,15 +21,24 @@ public class KeybindManager {
         keybindings.Clear();
     }
 
-    public static void Add(MonoBehaviour owner, Action action, KeyCode mainKey, KeyCode[] modifiers = null) {
-        NineSolsAPICore.Instance.KeybindManager.AddKeybind(owner, action, new KeyboardShortcut(mainKey, modifiers ?? []));
+    public static void Add(MonoBehaviour owner, Action action, params KeyCode[] keys) {
+        var mainKey = keys[^1];
+        var modifiers = keys[..^1];
+
+        var shortcut = new KeyboardShortcut(mainKey, modifiers);
+        Add(owner, action, shortcut);
     }
+
     public static void Add(MonoBehaviour owner, Action action, KeyboardShortcut shortcut) {
+        Add(owner, action, () => shortcut);
+    }
+
+    public static void Add(MonoBehaviour owner, Action action, Func<KeyboardShortcut> shortcut) {
         NineSolsAPICore.Instance.KeybindManager.AddKeybind(owner, action, shortcut);
     }
 
-    private void AddKeybind(MonoBehaviour owner, Action action, KeyboardShortcut shortcut) {
-        keybindings.Add(new KeyBind() { Owner = owner, Action = action, Shortcut = shortcut });
+    private void AddKeybind(MonoBehaviour owner, Action action, Func<KeyboardShortcut> shortcut) {
+        keybindings.Add(new KeyBind { Owner = owner, Action = action, Shortcut = shortcut });
     }
 
     internal void Update() {
@@ -40,7 +49,7 @@ public class KeybindManager {
                 continue;
             }
 
-            if (!keybind.Shortcut.IsPressed()) continue;
+            if (!keybind.Shortcut.Invoke().IsDown()) continue;
 
             try {
                 keybind.Action.Invoke();
@@ -49,8 +58,6 @@ public class KeybindManager {
             }
         }
 
-        if (someOutdated) {
-            keybindings.RemoveAll(keybinding => !keybinding.Owner);
-        }
+        if (someOutdated) keybindings.RemoveAll(keybinding => !keybinding.Owner);
     }
 }
