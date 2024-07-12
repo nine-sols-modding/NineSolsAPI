@@ -15,7 +15,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
         <!-- TODO: don't hardcode this -->
-        <NineSolsPath>/home/jakob/.local/share/Steam/steamapps/common/Nine Sols</NineSolsPath>
+        <NineSolsPath>$(HOME)/.local/share/Steam/steamapps/common/Nine Sols</NineSolsPath>
         <CopyDir>$(NineSolsPath)/BepInEx/plugins</CopyDir>
     </PropertyGroup>
 

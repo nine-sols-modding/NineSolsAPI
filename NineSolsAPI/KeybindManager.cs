@@ -49,7 +49,11 @@ public class KeybindManager {
                 continue;
             }
 
-            if (!keybind.Shortcut.Invoke().IsDown()) continue;
+            var shortcut = keybind.Shortcut.Invoke();
+            var isDown = Input.GetKeyDown(shortcut.MainKey);
+            foreach (var modifier in shortcut.Modifiers) isDown = isDown && Input.GetKey(modifier);
+
+            if (!isDown) continue;
 
             try {
                 keybind.Action.Invoke();
