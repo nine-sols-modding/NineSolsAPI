@@ -1,3 +1,4 @@
+using System.IO;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
@@ -9,4 +10,12 @@ public static class JsonUtils {
         JsonConvert.SerializeObject(value, indent ? Formatting.Indented : Formatting.None);
 
     public static T? Deserialize<T>(string value) => JsonConvert.DeserializeObject<T>(value);
+
+    public static T? DeserializeStream<T>(Stream stream) {
+        using var streamReader = new StreamReader(stream);
+        using var reader = new JsonTextReader(streamReader);
+
+        var serializer = JsonSerializer.CreateDefault();
+        return serializer.Deserialize<T>(reader);
+    }
 }
