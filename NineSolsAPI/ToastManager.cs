@@ -17,7 +17,7 @@ public class ToastManager {
     private TMP_Text toastText;
 
     public ToastManager() {
-        var toastTextObj = new GameObject();
+        var toastTextObj = new GameObject("Toast");
         toastTextObj.transform.SetParent(NineSolsAPICore.FullscreenCanvas.transform);
         toastText = toastTextObj.AddComponent<TextMeshProUGUI>();
         toastText.alignment = TextAlignmentOptions.BottomRight;
@@ -29,7 +29,7 @@ public class ToastManager {
         toastTextTransform.anchorMax = new Vector2(1, 0);
         toastTextTransform.pivot = new Vector2(1f, 0f);
         toastTextTransform.anchoredPosition = new Vector2(-10, 10);
-        toastTextTransform.sizeDelta = new Vector2(800f, 0f);
+        toastTextTransform.sizeDelta = new Vector2(Screen.width, 0f);
     }
 
     [PublicAPI]
