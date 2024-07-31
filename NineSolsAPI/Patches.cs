@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using NineSolsAPI.Preload;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace NineSolsAPI;
@@ -27,9 +28,13 @@ public class Patches {
             __instance.TMPtext.text = $"{prefix}\n{__instance.TMPtext.text}";
     }
 
-    [HarmonyPatch(typeof(LogoLogic), nameof(LogoLogic.PaddingForApplicationStartUp))]
-    [HarmonyPrefix]
-    private static bool PaddingForShowNext() => false;
+
+    [HarmonyPatch(typeof(LogoLogic), nameof(LogoLogic.Start))]
+    [HarmonyPostfix]
+    private static void Start(ref LogoLogic __instance) {
+        RuntimeInitHandler.LoadCore();
+        SceneManager.LoadScene(__instance.NextScene);
+    }
 
 
     [HarmonyPatch(typeof(GameLevel), nameof(GameLevel.Awake))]
