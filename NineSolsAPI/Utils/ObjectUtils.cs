@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -90,5 +92,14 @@ public static class ObjectUtils {
             .FirstOrDefault(x => x.name == name);
         if (!x) Log.Warning($"FindDisabledByName({name}) not found");
         return x;
+    }
+
+    public static string ObjectPath(GameObject obj) {
+        List<string> segments = [];
+        for (var current = obj; current != null; current = current.transform.parent?.gameObject)
+            segments.Add(current.name);
+
+        segments.Reverse();
+        return segments.Join(delimiter: "/");
     }
 }
