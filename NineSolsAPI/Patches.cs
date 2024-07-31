@@ -17,7 +17,7 @@ public class Patches {
         return false;
     }
 
-    [HarmonyPatch(typeof(VersionText), "Start")]
+    /*[HarmonyPatch(typeof(VersionText), "Start")]
     [HarmonyPostfix]
     private static void Version(ref VersionText __instance) {
         var prefix = $"Modding API: {NineSolsAPICore.PluginVersion}";
@@ -26,7 +26,7 @@ public class Patches {
             __instance.text.text = $"{prefix}\n{__instance.text.text}";
         else
             __instance.TMPtext.text = $"{prefix}\n{__instance.TMPtext.text}";
-    }
+    }*/
 
 
     [HarmonyPatch(typeof(LogoLogic), nameof(LogoLogic.Start))]
