@@ -28,6 +28,52 @@ public static class ObjectUtils {
         return copy;
     }
 
+    public static GameObject InstantiateInit(GameObject orig, Transform? parent = null) {
+        var copy = InstantiateAutoReference(orig, parent);
+
+        var levelAwakeList = copy.GetComponentsInChildren<ILevelAwake>(true);
+        for (var i = levelAwakeList.Length - 1; i >= 0; i--) {
+            var context = levelAwakeList[i];
+            try {
+                context.EnterLevelAwake();
+            } catch (Exception ex) {
+                Log.Error(ex.StackTrace);
+            }
+        }
+
+        var levelAwakeReverseList = copy.GetComponentsInChildren<ILevelAwakeReverse>(true);
+        for (var i = levelAwakeReverseList.Length - 1; i >= 0; i--) {
+            var context = levelAwakeReverseList[i];
+            try {
+                context.EnterLevelAwakeReverse();
+            } catch (Exception ex) {
+                Log.Error(ex.StackTrace);
+            }
+        }
+
+        var levelStartList = copy.GetComponentsInChildren<ILevelStart>(true);
+        for (var i = levelStartList.Length - 1; i >= 0; i--) {
+            var context = levelStartList[i];
+            try {
+                context.EnterLevelStart();
+            } catch (Exception ex) {
+                Log.Error(ex.StackTrace);
+            }
+        }
+
+        var resetList = copy.GetComponentsInChildren<IResetter>(true);
+        for (var i = resetList.Length - 1; i >= 0; i--) {
+            var context = resetList[i];
+            try {
+                context.EnterLevelReset();
+            } catch (Exception ex) {
+                Log.Error(ex.StackTrace);
+            }
+        }
+
+        return copy;
+    }
+
 
     // https://github.com/hk-modding/api/blob/master/Assembly-CSharp/Utils/UnityExtensions.cs#L37
     /// <summary>
