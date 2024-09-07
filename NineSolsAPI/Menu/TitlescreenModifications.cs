@@ -1,3 +1,4 @@
+using BepInEx.Bootstrap;
 using I2.Loc;
 using NineSolsAPI.Utils;
 using TMPro;
@@ -12,7 +13,11 @@ internal class TitlescreenModifications {
     private UIControlGroup? group;
     private UIControlButton? button;
 
+    private const bool Enable = false;
+
     public void Load() {
+        if (!Enable) return;
+
         MaybeExtendMainMenu(SceneManager.GetActiveScene());
     }
 
@@ -87,7 +92,7 @@ internal class TitlescreenModifications {
 
         var buttonOrig = ObjectUtils.FindDisabledByName<Button>("Show HUD")!;
 
-        foreach (var plugin in BepInEx.Bootstrap.Chainloader.PluginInfos) {
+        foreach (var plugin in Chainloader.PluginInfos) {
             var c = ObjectUtils.InstantiateAutoReference(buttonOrig.gameObject, layout.transform);
             c.GetComponentInChildren<TMP_Text>().text = $"{plugin.Key} {plugin.Value.Metadata.Version}";
             var flag = new FlagFieldEntryInt();
