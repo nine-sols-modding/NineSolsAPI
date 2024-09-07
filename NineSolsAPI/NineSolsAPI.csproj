@@ -59,8 +59,13 @@
         </Reference>
     </ItemGroup>
 
-    <Target Name="CopyMod" AfterTargets="PostBuildEvent">
-        <Message Importance="high" Text="copying $(TargetPath) to $(CopyDir) ..." />
-        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(CopyDir)" SkipUnchangedFiles="true" />
+    <!--    <Target Name="CopyModToGame" AfterTargets="PostBuildEvent">-->
+    <!--        <Message Importance="high" Text="copying $(TargetPath) to $(CopyDir) ..."/>-->
+    <!--        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(CopyDir)" SkipUnchangedFiles="true"/>-->
+    <!--    </Target>-->
+
+    <Target Name="PackageMod" AfterTargets="Publish">
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="../thunderstore/build/dll" SkipUnchangedFiles="true"/>
+        <Exec Command="tcli build --config-path ../thunderstore/thunderstore.toml"/>
     </Target>
 </Project>
