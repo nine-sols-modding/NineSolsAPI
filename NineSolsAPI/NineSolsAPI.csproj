@@ -7,6 +7,7 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Nullable>enable</Nullable>
         <NoWarn>MSB3277</NoWarn>
+        <PublishRelease>true</PublishRelease>
 
         <TargetFramework>netstandard2.1</TargetFramework>
         <RootNamespace>NineSolsAPI</RootNamespace>
@@ -14,10 +15,9 @@
 
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
-        <!-- TODO: don't hardcode this -->
         <NineSolsPath Condition="'$(OS)' == 'Windows_NT'">C:/Program Files (x86)/Steam/steamapps/common/Nine Sols</NineSolsPath>
         <NineSolsPath Condition="'$(OS)' != 'Windows_NT'">$(HOME)/.local/share/Steam/steamapps/common/Nine Sols</NineSolsPath>
-        <CopyDir>$(NineSolsPath)/BepInEx/plugins</CopyDir>
+        <!-- <CopyDir>$(NineSolsPath)/BepInEx/plugins</CopyDir>-->
     </PropertyGroup>
 
     <PropertyGroup>
@@ -59,10 +59,10 @@
         </Reference>
     </ItemGroup>
 
-    <!--    <Target Name="CopyModToGame" AfterTargets="PostBuildEvent">-->
-    <!--        <Message Importance="high" Text="copying $(TargetPath) to $(CopyDir) ..."/>-->
-    <!--        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(CopyDir)" SkipUnchangedFiles="true"/>-->
-    <!--    </Target>-->
+    <Target Name="CopyMod" AfterTargets="PostBuildEvent" Condition="'$(CopyDir)' != ''">
+        <Message Importance="high" Text="copying $(TargetPath) to $(CopyDir) ..."/>
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(CopyDir)" SkipUnchangedFiles="true"/>
+    </Target>
 
     <Target Name="PackageMod" AfterTargets="Publish">
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="../thunderstore/build/dll" SkipUnchangedFiles="true"/>
