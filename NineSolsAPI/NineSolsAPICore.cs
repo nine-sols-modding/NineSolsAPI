@@ -1,4 +1,5 @@
-﻿using BepInEx;
+﻿using System;
+using BepInEx;
 using HarmonyLib;
 using JetBrains.Annotations;
 using NineSolsAPI.Menu;
@@ -41,15 +42,22 @@ public class NineSolsAPICore : BaseUnityPlugin {
     private void Awake() {
         Instance = this;
         Log.Init(Logger);
-        LoadProgress = 0;
-        harmony = Harmony.CreateAndPatchAll(typeof(Patches), PluginGUID);
-        fullscreenCanvas = CreateFullscreenCanvas();
-        preloader = new Preloader(progress => LoadProgress = progress);
-        ToastManager = new ToastManager();
-        titlescreenModifications.Load();
-        SceneManager.sceneLoaded += OnSceneLoaded;
 
-        RCGLifeCycle.DontDestroyForever(gameObject);
+
+        try {
+            LoadProgress = 0;
+            harmony = Harmony.CreateAndPatchAll(typeof(Patches), PluginGUID);
+            fullscreenCanvas = CreateFullscreenCanvas();
+            preloader = new Preloader(progress => LoadProgress = progress);
+            ToastManager = new ToastManager();
+            titlescreenModifications.Load();
+            SceneManager.sceneLoaded += OnSceneLoaded;
+
+            RCGLifeCycle.DontDestroyForever(gameObject);
+        } catch (Exception e) {
+            Log.Error($"Failed to initialized modding API: {e}");
+        }
+
         Logger.LogInfo("Nine Sols API loaded");
     }
 
