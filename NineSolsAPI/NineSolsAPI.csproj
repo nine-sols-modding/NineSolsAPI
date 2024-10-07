@@ -17,7 +17,12 @@
 
         <NineSolsPath Condition="'$(OS)' == 'Windows_NT'">C:/Program Files (x86)/Steam/steamapps/common/Nine Sols</NineSolsPath>
         <NineSolsPath Condition="'$(OS)' != 'Windows_NT'">$(HOME)/.local/share/Steam/steamapps/common/Nine Sols</NineSolsPath>
-        <!-- <CopyDir>$(NineSolsPath)/BepInEx/plugins</CopyDir>-->
+
+        <!-- If you're not using R2Modman/Thunderstore, this can be NineSolsPath as well. Only used in CopyDir -->
+        <ProfileDir Condition="'$(OS)' == 'Windows_NT'">C:/Users/$username/AppData/Roaming/r2modmanPlus-local/NineSols/profiles/Default</ProfileDir>
+        <ProfileDir Condition="'$(OS)' != 'Windows_NT'">$(HOME)/.config/r2modmanPlus-local/NineSols/profiles/Default</ProfileDir>
+        <!-- After building, copy the dll to this folder. -->
+        <CopyDir>$(ProfileDir)/BepInEx/plugins</CopyDir>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -25,11 +30,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BepInEx.Analyzers" Version="1.0.8" PrivateAssets="all" IncludeAssets="all"/>
+        <PackageReference Include="BepInEx.Analyzers" Version="1.0.8" PrivateAssets="all" IncludeAssets="all" />
 
-        <PackageReference Include="BepInEx.Core" Version="5.4.19"/>
-        <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*"/>
-        <PackageReference Include="UnityEngine.Modules" Version="2022.3.18" IncludeAssets="compile"/>
+        <PackageReference Include="BepInEx.Core" Version="5.4.19" />
+        <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
+        <PackageReference Include="UnityEngine.Modules" Version="2022.3.18" IncludeAssets="compile" />
 
         <!--<PackageReference Include="NineSols.GameLibs" Version="" /> -->
         <!-- GAME LIBS -->
@@ -60,12 +65,12 @@
     </ItemGroup>
 
     <Target Name="CopyMod" AfterTargets="PostBuildEvent" Condition="'$(CopyDir)' != ''">
-        <Message Importance="high" Text="copying $(TargetPath) to $(CopyDir) ..."/>
-        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(CopyDir)" SkipUnchangedFiles="true"/>
+        <Message Importance="high" Text="copying $(TargetPath) to $(CopyDir) ..." />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(CopyDir)" SkipUnchangedFiles="true" />
     </Target>
 
     <Target Name="PackageMod" AfterTargets="Publish">
-        <Copy SourceFiles="$(TargetPath)" DestinationFolder="../thunderstore/build/dll" SkipUnchangedFiles="true"/>
-        <Exec Command="tcli build --config-path ../thunderstore/thunderstore.toml"/>
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="../thunderstore/build/dll" SkipUnchangedFiles="true" />
+        <Exec Command="tcli build --config-path ../thunderstore/thunderstore.toml" />
     </Target>
 </Project>

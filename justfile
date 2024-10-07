@@ -1,5 +1,5 @@
 build:
-    rm NineSolsAPI/bin/Release/*.nupkg
+    rm -f NineSolsAPI/bin/Release/*.nupkg
     dotnet publish
 
 publish: build
