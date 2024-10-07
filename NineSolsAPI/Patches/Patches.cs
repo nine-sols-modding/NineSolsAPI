@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using NineSolsAPI.Preload;
+using UnityEngine.Device;
 using UnityEngine.SceneManagement;
 
 namespace NineSolsAPI.Patches;
@@ -31,9 +32,17 @@ public class Patches {
     [HarmonyPatch(typeof(LogoLogic), nameof(LogoLogic.Start))]
     [HarmonyPostfix]
     private static void Start(ref LogoLogic __instance) {
-        RuntimeInitHandler.LoadCore();
-        SceneManager.LoadScene(__instance.NextScene);
+        switch (Application.buildGUID) {
+            case BUILDGUID_SPEEDRUNPATCH:
+                return;
+            default:
+                RuntimeInitHandler.LoadCore();
+                SceneManager.LoadScene(__instance.NextScene);
+                return;
+        }
     }
+
+    private const string BUILDGUID_SPEEDRUNPATCH = "d4c12f4d7e8442e79988244014fb92d2";
 
 
     [HarmonyPatch(typeof(GameLevel), nameof(GameLevel.Awake))]
