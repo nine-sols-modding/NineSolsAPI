@@ -16,8 +16,6 @@ internal class TitlescreenModifications {
     private const bool Enable = false;
 
     public void Load() {
-        if (!Enable) return;
-
         MaybeExtendMainMenu(SceneManager.GetActiveScene());
     }
 
@@ -28,6 +26,8 @@ internal class TitlescreenModifications {
 
 
     public void MaybeExtendMainMenu(Scene scene) {
+        if (!Enable) return;
+
         if (scene.name != "TitleScreenMenu") return;
         if (button) return;
 
