@@ -46,7 +46,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
 
         try {
             LoadProgress = 0;
-            harmony = Harmony.CreateAndPatchAll(typeof(Patches), PluginGUID);
+            harmony = Harmony.CreateAndPatchAll(typeof(NineSolsAPICore).Assembly, PluginGUID);
             fullscreenCanvas = CreateFullscreenCanvas();
             preloader = new Preloader(progress => LoadProgress = progress);
             ToastManager = new ToastManager();

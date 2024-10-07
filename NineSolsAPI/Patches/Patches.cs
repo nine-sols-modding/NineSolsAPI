@@ -2,9 +2,8 @@ using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using NineSolsAPI.Preload;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
-namespace NineSolsAPI;
+namespace NineSolsAPI.Patches;
 
 [HarmonyPatch]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
