@@ -70,7 +70,7 @@ public class ToastManager {
     }
 
 
-    private float Now => Time.realtimeSinceStartup;
+    private static float Now => Time.time;
 
     private void AddToastMessage(string message) {
         toasts.Add(new ToastMessage(Now, message));
