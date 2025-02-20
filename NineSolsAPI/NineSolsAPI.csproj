@@ -17,6 +17,7 @@
 
         <NineSolsPath Condition="'$(OS)' == 'Windows_NT'">C:/Program Files (x86)/Steam/steamapps/common/Nine Sols</NineSolsPath>
         <NineSolsPath Condition="'$(OS)' != 'Windows_NT'">$(HOME)/.local/share/Steam/steamapps/common/Nine Sols</NineSolsPath>
+        <DllPath>$(NineSolsPath)/NineSols_Data/Managed</DllPath>
 
         <!-- If you're not using R2Modman/Thunderstore, this can be NineSolsPath as well. Only used in CopyDir -->
         <ProfileDir Condition="'$(OS)' == 'Windows_NT'">C:/Users/$username/AppData/Roaming/r2modmanPlus-local/NineSols/profiles/Default</ProfileDir>
@@ -39,30 +40,39 @@
         <!--<PackageReference Include="NineSols.GameLibs" Version="" /> -->
         <!-- GAME LIBS -->
         <Reference Include="Assembly-CSharp">
-            <HintPath>$(NineSolsPath)/NineSols_Data/Managed/Assembly-CSharp.dll</HintPath>
+            <HintPath>$(DllPath)/Assembly-CSharp.dll</HintPath>
         </Reference>
         <Reference Include="rcg.rcgmakercore.Runtime">
-            <HintPath>$(NineSolsPath)/NineSols_Data/Managed/rcg.rcgmakercore.Runtime.dll</HintPath>
+            <HintPath>$(DllPath)/rcg.rcgmakercore.Runtime.dll</HintPath>
         </Reference>
         <Reference Include="barbaro.autoattributes.Runtime.dll">
-            <HintPath>$(NineSolsPath)/NineSols_Data/Managed/barbaro.autoattributes.Runtime.dll</HintPath>
+            <HintPath>$(DllPath)/barbaro.autoattributes.Runtime.dll</HintPath>
         </Reference>
         <Reference Include="I2">
-            <HintPath>$(NineSolsPath)/NineSols_Data/Managed/I2.dll</HintPath>
+            <HintPath>$(DllPath)/I2.dll</HintPath>
         </Reference>
         <Reference Include="AK.Wwise.Unity.API">
-            <HintPath>$(NineSolsPath)/NineSols_Data/Managed/AK.Wwise.Unity.API.dll</HintPath>
+            <HintPath>$(DllPath)/AK.Wwise.Unity.API.dll</HintPath>
         </Reference>
         <Reference Include="Unity.TextMeshPro">
-            <HintPath>$(NineSolsPath)/NineSols_Data/Managed/Unity.TextMeshPro.dll</HintPath>
+            <HintPath>$(DllPath)/Unity.TextMeshPro.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.UI">
-            <HintPath>$(NineSolsPath)/NineSols_Data/Managed/UnityEngine.UI.dll</HintPath>
+            <HintPath>$(DllPath)/UnityEngine.UI.dll</HintPath>
         </Reference>
         <Reference Include="Newtonsoft.Json">
-            <HintPath>$(NineSolsPath)/NineSols_Data/Managed/Newtonsoft.Json.dll</HintPath>
+            <HintPath>$(DllPath)/Newtonsoft.Json.dll</HintPath>
         </Reference>
     </ItemGroup>
+
+    <Target Name="CheckReferences" BeforeTargets="BeforeBuild">
+        <ItemGroup>
+            <MissingReferences Include="@(Reference)" Condition="!Exists('%(Reference.HintPath)')" />
+        </ItemGroup>
+        <Error Condition="@(MissingReferences->Count()) > 0" Text="Missing reference(s);
+@(MissingReferences->'%(HintPath)', ',&#x0A;')
+Did you forget to adjust your NineSolsPath '$(DllPath)'?" />
+    </Target>
 
     <Target Name="CopyMod" AfterTargets="PostBuildEvent" Condition="'$(CopyDir)' != ''">
         <Message Importance="high" Text="copying $(TargetPath) to $(CopyDir) ..." />
