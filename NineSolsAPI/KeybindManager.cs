@@ -1,4 +1,3 @@
-#nullable disable
 using System;
 using System.Collections.Generic;
 using BepInEx.Configuration;
@@ -8,9 +7,9 @@ using UnityEngine;
 namespace NineSolsAPI;
 
 internal class KeyBind {
-    public MonoBehaviour Owner;
-    public Func<KeyboardShortcut> Shortcut;
-    public Action Action;
+    public required MonoBehaviour Owner;
+    public required Func<KeyboardShortcut> Shortcut;
+    public required Action Action;
 }
 
 [PublicAPI]
