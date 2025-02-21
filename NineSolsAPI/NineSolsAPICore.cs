@@ -53,14 +53,17 @@ public class NineSolsAPICore : BaseUnityPlugin {
             SceneManager.sceneLoaded += OnSceneLoaded;
             RCGLifeCycle.DontDestroyForever(gameObject);
 
-            harmony = Harmony.CreateAndPatchAll(typeof(NineSolsAPICore).Assembly, PluginGUID);
+            harmony = new Harmony($"harmony-auto-{(object)Guid.NewGuid()}");
+            harmony.PatchAll(typeof(Patches.Patches));
+            harmony.PatchAll(typeof(Patches.SteamAPI));
+            if (GameVersions.IsVersion(GameVersions.BuildGuidSpeedrunpatch))
+                harmony.PatchAll(typeof(Patches.PatchesSpeedrunpatch));
         } catch (Exception e) {
             Log.Error($"Failed to initialized modding API: {e}");
         }
 
         Logger.LogInfo("Nine Sols API loaded");
     }
-
 
     private void Start() {
         Invoke(nameof(AfterStart), 0);

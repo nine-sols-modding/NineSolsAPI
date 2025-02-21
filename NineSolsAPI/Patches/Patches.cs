@@ -32,17 +32,13 @@ public class Patches {
     [HarmonyPatch(typeof(LogoLogic), nameof(LogoLogic.Start))]
     [HarmonyPostfix]
     private static void Start(ref LogoLogic __instance) {
-        switch (Application.buildGUID) {
-            case BUILDGUID_SPEEDRUNPATCH:
-                return;
-            default:
-                RuntimeInitHandler.LoadCore();
-                SceneManager.LoadScene(__instance.NextScene);
-                return;
+        if (Application.buildGUID == GameVersions.BuildGuidSpeedrunpatch) {
+            return;
         }
-    }
 
-    private const string BUILDGUID_SPEEDRUNPATCH = "d4c12f4d7e8442e79988244014fb92d2";
+        RuntimeInitHandler.LoadCore();
+        SceneManager.LoadScene(__instance.NextScene);
+    }
 
 
     [HarmonyPatch(typeof(GameLevel), nameof(GameLevel.Awake))]
