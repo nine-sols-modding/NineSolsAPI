@@ -20,11 +20,12 @@ public class ToastManager {
 
     public ToastManager() {
         var toastTextObj = new GameObject("Toast");
-        toastTextObj.transform.SetParent(NineSolsAPICore.FullscreenCanvas.transform);
+        toastTextObj.transform.SetParent(NineSolsAPICore.FullscreenCanvas?.transform);
         toastText = toastTextObj.AddComponent<TextMeshProUGUI>();
         toastText.alignment = TextAlignmentOptions.BottomRight;
         toastText.fontSize = 20;
         toastText.color = Color.white;
+        RCGLifeCycle.DontDestroyForever(toastTextObj);
 
         var toastTextTransform = toastText.GetComponent<RectTransform>();
         toastTextTransform.anchorMin = new Vector2(1, 0);
