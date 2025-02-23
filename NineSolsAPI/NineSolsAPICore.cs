@@ -1,5 +1,6 @@
 ﻿using System;
 using BepInEx;
+using BepInEx.Configuration;
 using HarmonyLib;
 using JetBrains.Annotations;
 using NineSolsAPI.Menu;
@@ -43,6 +44,11 @@ public class NineSolsAPICore : BaseUnityPlugin {
         Instance = this;
         Log.Init(Logger);
 
+        // it's unclear when bepinex registers this itself, we've run into bugs here
+        TomlTypeConverter.AddConverter(typeof(KeyboardShortcut), new TypeConverter {
+            ConvertToString = (Func<object, Type, string>)((o, type) => ((KeyboardShortcut)o).Serialize()),
+            ConvertToObject = (Func<string, Type, object>)((s, type) => KeyboardShortcut.Deserialize(s)),
+        });
 
         try {
             LoadProgress = 0;
