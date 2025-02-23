@@ -20,7 +20,7 @@
         <DllPath>$(NineSolsPath)/NineSols_Data/Managed</DllPath>
 
         <!-- If you're not using R2Modman/Thunderstore, this can be NineSolsPath as well. Only used in CopyDir -->
-        <ProfileDir Condition="'$(OS)' == 'Windows_NT'">C:/Users/$username/AppData/Roaming/r2modmanPlus-local/NineSols/profiles/Default</ProfileDir>
+        <ProfileDir Condition="'$(OS)' == 'Windows_NT'">$(AppData)/r2modmanPlus-local/NineSols/profiles/Default</ProfileDir>
         <ProfileDir Condition="'$(OS)' != 'Windows_NT'">$(HOME)/.config/r2modmanPlus-local/NineSols/profiles/Default</ProfileDir>
         <!-- After building, copy the dll to this folder. -->
         <CopyDir>$(ProfileDir)/BepInEx/plugins</CopyDir>
