@@ -18,5 +18,7 @@ public class PatchesSpeedrunpatch {
 
     [HarmonyPatch(typeof(GameFlagManager), "LoadFlags")]
     [HarmonyPostfix]
-    private static void AchievementAcquired(bool __state) => UnityEngine.Debug.unityLogger.logEnabled = __state;
+    private static void LoadFlagsPost(bool __state) {
+        UnityEngine.Debug.unityLogger.logEnabled = __state;
+    }
 }
