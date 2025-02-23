@@ -35,6 +35,10 @@ public class KeybindManager {
     public static void Add(MonoBehaviour owner, Action action, Func<KeyboardShortcut> shortcut) {
         NineSolsAPICore.Instance.KeybindManager.AddKeybind(owner, action, shortcut);
     }
+    
+    public static void Add(MonoBehaviour owner, Action action, ConfigEntry<KeyboardShortcut> shortcut) {
+        Add(owner, action, () => shortcut.Value);
+    }
 
     private void AddKeybind(MonoBehaviour owner, Action action, Func<KeyboardShortcut> shortcut) {
         keybindings.Add(new KeyBind { Owner = owner, Action = action, Shortcut = shortcut });
