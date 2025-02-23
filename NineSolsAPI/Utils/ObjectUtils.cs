@@ -15,6 +15,7 @@ public static class ObjectUtils {
         bool autoReferenceChildren = true) {
         var copy = Object.Instantiate(orig, parent, false);
         if (!copy) return copy;
+
         AutoAttributeManager.AutoReference(copy);
         if (autoReferenceChildren) AutoAttributeManager.AutoReferenceAllChildren(copy);
         return copy;
@@ -23,6 +24,7 @@ public static class ObjectUtils {
     public static GameObject InstantiateAutoReference(GameObject orig, bool autoReferenceChildren = true) {
         var copy = Object.Instantiate(orig);
         if (!copy) return copy;
+
         AutoAttributeManager.AutoReference(copy);
         if (autoReferenceChildren) AutoAttributeManager.AutoReferenceAllChildren(copy);
         return copy;
@@ -89,10 +91,16 @@ public static class ObjectUtils {
     }
 
     public static GameObject? LookupPath(string path) {
+        var dontDestroyScene = ApplicationCore.Instance.gameObject.scene;
+        if (ObjectUtils.LookupPath(dontDestroyScene, path) is { } objD) {
+            return objD;
+        }
+
         for (var i = 0; i < SceneManager.sceneCount; i++) {
             var scene = SceneManager.GetSceneAt(i);
-            var found = LookupPath(scene, path);
-            if (found is not null) return found;
+            if (LookupPath(scene, path) is { } obj) {
+                return obj;
+            }
         }
 
         return null;
