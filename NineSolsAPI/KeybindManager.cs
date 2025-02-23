@@ -35,7 +35,7 @@ public class KeybindManager {
     public static void Add(MonoBehaviour owner, Action action, Func<KeyboardShortcut> shortcut) {
         NineSolsAPICore.Instance.KeybindManager.AddKeybind(owner, action, shortcut);
     }
-    
+
     public static void Add(MonoBehaviour owner, Action action, ConfigEntry<KeyboardShortcut> shortcut) {
         Add(owner, action, () => shortcut.Value);
     }
@@ -52,11 +52,7 @@ public class KeybindManager {
                 continue;
             }
 
-            var shortcut = keybind.Shortcut.Invoke();
-            var isDown = Input.GetKeyDown(shortcut.MainKey);
-            foreach (var modifier in shortcut.Modifiers) isDown = isDown && Input.GetKey(modifier);
-
-            if (!isDown) continue;
+            if (!CheckShortcutOnly(keybind.Shortcut.Invoke())) continue;
 
             try {
                 keybind.Action.Invoke();
@@ -66,5 +62,15 @@ public class KeybindManager {
         }
 
         if (someOutdated) keybindings.RemoveAll(keybinding => !keybinding.Owner);
+    }
+
+    /**
+     * When you hold A + S + F1 and check KeyboardShortcut(F1).IsPressed, it will return false.
+     * With this method, other keys like A and S are not checked, so it would be true.
+     */
+    public static bool CheckShortcutOnly(KeyboardShortcut shortcut) {
+        var isDown = Input.GetKeyDown(shortcut.MainKey);
+        foreach (var modifier in shortcut.Modifiers) isDown = isDown && Input.GetKey(modifier);
+        return isDown;
     }
 }
