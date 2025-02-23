@@ -16,8 +16,8 @@ namespace NineSolsAPI;
 public class NineSolsAPICore : BaseUnityPlugin {
     // ReSharper disable once InconsistentNaming
     public const string PluginGUID = "ninesolsapi";
-    public const string PluginName = "NineSolsAPI";
-    public const string PluginVersion = "1.0.0";
+    public const string PluginName = MyPluginInfo.PLUGIN_NAME;
+    public const string PluginVersion = MyPluginInfo.PLUGIN_VERSION;
 
     public static Canvas FullscreenCanvas => Instance.fullscreenCanvas;
 
