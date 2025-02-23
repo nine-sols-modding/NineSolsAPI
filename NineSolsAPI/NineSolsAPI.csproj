@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <Version>0.4.3</Version>
+        <Version>1.0.0</Version>
         <Authors>jakobhellermann@protonmail.com</Authors>
         <RepositoryUrl>https://github.com/nine-sols-modding/NineSolsAPI</RepositoryUrl>
         <Description>Nine Sols Modding API</Description>
