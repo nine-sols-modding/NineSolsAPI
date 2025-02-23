@@ -129,8 +129,9 @@ public class Preloader(Action<float> onProgress) {
     }
 
     private IEnumerator DoPreload() {
-        Log.Info($"Preloading {preloadTypes.Count} scenes");
         if (preloadTypes.Count == 0) yield break;
+
+        Log.Info($"Preloading {preloadTypes.Count} scenes");
 
         var watch = System.Diagnostics.Stopwatch.StartNew();
 
@@ -150,6 +151,7 @@ public class Preloader(Action<float> onProgress) {
                     if (inProgressLoads.Count % 4 == 0) {
                         var watchRes = System.Diagnostics.Stopwatch.StartNew();
                         yield return Resources.UnloadUnusedAssets();
+
                         watchRes.Stop();
                         Log.Info($"collecting resources in ${watchRes.ElapsedMilliseconds}");
                     }

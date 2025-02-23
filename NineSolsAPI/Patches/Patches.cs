@@ -32,7 +32,7 @@ public class Patches {
     [HarmonyPatch(typeof(LogoLogic), nameof(LogoLogic.Start))]
     [HarmonyPostfix]
     private static void Start(ref LogoLogic __instance) {
-        if (Application.buildGUID == GameVersions.BuildGuidSpeedrunpatch) {
+        if (Application.buildGUID == GameVersions.SpeedrunPatch) {
             return;
         }
 

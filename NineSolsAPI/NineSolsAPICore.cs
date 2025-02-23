@@ -45,10 +45,13 @@ public class NineSolsAPICore : BaseUnityPlugin {
         Log.Init(Logger);
 
         // it's unclear when bepinex registers this itself, we've run into bugs here
-        TomlTypeConverter.AddConverter(typeof(KeyboardShortcut), new TypeConverter {
-            ConvertToString = (Func<object, Type, string>)((o, type) => ((KeyboardShortcut)o).Serialize()),
-            ConvertToObject = (Func<string, Type, object>)((s, type) => KeyboardShortcut.Deserialize(s)),
-        });
+        if (!TomlTypeConverter.CanConvert(typeof(KeyboardShortcut))) {
+            TomlTypeConverter.AddConverter(typeof(KeyboardShortcut),
+                new TypeConverter {
+                    ConvertToString = (Func<object, Type, string>)((o, _) => ((KeyboardShortcut)o).Serialize()),
+                    ConvertToObject = (Func<string, Type, object>)((s, _) => KeyboardShortcut.Deserialize(s)),
+                });
+        }
 
         try {
             LoadProgress = 0;
@@ -62,7 +65,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
             harmony = new Harmony($"harmony-auto-{(object)Guid.NewGuid()}");
             harmony.PatchAll(typeof(Patches.Patches));
             harmony.PatchAll(typeof(Patches.SteamAPI));
-            if (GameVersions.IsVersion(GameVersions.BuildGuidSpeedrunpatch))
+            if (GameVersions.IsVersion(GameVersions.SpeedrunPatch))
                 harmony.PatchAll(typeof(Patches.PatchesSpeedrunpatch));
         } catch (Exception e) {
             Log.Error($"Failed to initialized modding API: {e}");
