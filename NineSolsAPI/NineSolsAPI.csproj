@@ -60,6 +60,9 @@
         <Reference Include="UnityEngine.UI">
             <HintPath>$(DllPath)/UnityEngine.UI.dll</HintPath>
         </Reference>
+        <Reference Include="UniTask">
+            <HintPath>$(DllPath)/UniTask.dll</HintPath>
+        </Reference>
         <Reference Include="Newtonsoft.Json">
             <HintPath>$(DllPath)/Newtonsoft.Json.dll</HintPath>
         </Reference>
