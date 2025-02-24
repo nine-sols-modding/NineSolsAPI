@@ -125,7 +125,6 @@ public static class ObjectUtils {
         // Get root object
         var obj = objects.FirstOrDefault(o => o.name == rootName);
         if (obj is null) {
-            Log.Warning($"root does not exist: {rootName}");
             return null;
         }
 

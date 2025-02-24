@@ -21,4 +21,19 @@ public class PatchesSpeedrunpatch {
     private static void LoadFlagsPost(bool __state) {
         UnityEngine.Debug.unityLogger.logEnabled = __state;
     }
+
+
+    [HarmonyPatch(typeof(StatDataCollection), nameof(StatDataCollection.ClearStats))]
+    [HarmonyPrefix]
+    private static void ClearFlagsPre(out bool __state) {
+        UnityEngine.Debug.Log("Clear All Stats");
+        __state = UnityEngine.Debug.unityLogger.logEnabled;
+        UnityEngine.Debug.unityLogger.logEnabled = false;
+    }
+
+    [HarmonyPatch(typeof(StatDataCollection), nameof(StatDataCollection.ClearStats))]
+    [HarmonyPostfix]
+    private static void ClearFlagsPost(bool __state) {
+        UnityEngine.Debug.unityLogger.logEnabled = __state;
+    }
 }
