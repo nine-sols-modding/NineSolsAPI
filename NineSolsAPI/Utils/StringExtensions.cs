@@ -24,4 +24,11 @@ public static class StringExtensions {
         var idx = span.LastIndexOf(substr);
         return idx == -1 ? span : span[(idx + substr.Length) ..];
     }
+
+    public static (string, string)? SplitOnce(this string str, char sep) {
+        var i = str.LastIndexOf(sep);
+        var objectPath = str[..i];
+        var componentName = str[(i + 1)..];
+        return (objectPath, componentName);
+    }
 }

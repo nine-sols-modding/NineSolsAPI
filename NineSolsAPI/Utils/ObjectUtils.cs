@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HarmonyLib;
 using JetBrains.Annotations;
@@ -154,5 +155,25 @@ public static class ObjectUtils {
 
         segments.Reverse();
         return segments.Join(delimiter: "/");
+    }
+
+    [return: NotNullIfNotNull(nameof(component))]
+    public static string? ObjectComponentPath(Component? component) {
+        if (!component) return null;
+
+        var objectPath = ObjectUtils.ObjectPath(component!.gameObject);
+        return $"{objectPath}@{component.GetType().Name}";
+    }
+
+    public static Component? LookupObjectComponentPath(string path) {
+        var (objectPath, componentName) = path.SplitOnce('@') ??
+                                          throw new Exception($"Object-Component path contains no component: {path}");
+
+        var obj = ObjectUtils.LookupPath(objectPath);
+        if (obj == null) return null;
+
+        // PERF
+        var components = obj.GetComponents<Component>();
+        return components.FirstOrDefault(c => c.GetType().Name == componentName);
     }
 }
