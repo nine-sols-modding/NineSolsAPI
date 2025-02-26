@@ -134,11 +134,7 @@ public static class ObjectUtils {
 
 
         var t = obj.transform.Find(childName);
-        if (!t) {
-            Log.Warning($"does not exist: {childName} in {rootName}");
-            return null;
-        } else
-            return t.gameObject;
+        return !t ? null : t.gameObject;
     }
 
     public static T? FindDisabledByName<T>(string name) where T : Object {
