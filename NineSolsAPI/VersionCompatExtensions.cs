@@ -47,4 +47,9 @@ public static class VersionCompatExtensions {
 
         throw new Exception("No candidate for ApplicationCode.ChangeScene[Clean] found");
     }
+
+    public static MonsterStat MonsterStatCompat(this MonsterBase monsterBase) {
+        var field = typeof(MonsterBase).GetField("_monsterStat") ?? typeof(MonsterBase).GetField("monsterStat");
+        return (MonsterStat)field.GetValue(monsterBase);
+    }
 }
