@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
@@ -51,5 +52,15 @@ public static class VersionCompatExtensions {
     public static MonsterStat MonsterStatCompat(this MonsterBase monsterBase) {
         var field = typeof(MonsterBase).GetField("_monsterStat") ?? typeof(MonsterBase).GetField("monsterStat");
         return (MonsterStat)field.GetValue(monsterBase);
+    }
+
+    public static IEnumerable<AttackSensor> AttackSensorsCompat(this MonsterBase monsterBase) {
+        var field = typeof(MonsterBase).GetField("attackSensors", BindingFlags.Instance | BindingFlags.Public);
+        if (field != null) {
+            return (List<AttackSensor>)field.GetValue(monsterBase);
+        } else {
+            var f = typeof(MonsterBase).GetField("_attackSensors", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            return (AttackSensor[])f.GetValue(monsterBase);
+        }
     }
 }
