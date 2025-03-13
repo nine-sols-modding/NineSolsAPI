@@ -4,7 +4,7 @@ using System.Reflection;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace DebugModPlus;
+namespace NineSolsAPI;
 
 [PublicAPI]
 public static class VersionCompatExtensions {

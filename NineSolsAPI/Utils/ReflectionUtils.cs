@@ -5,10 +5,8 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using JetBrains.Annotations;
-using NineSolsAPI;
-using NineSolsAPI.Utils;
 
-namespace DebugModPlus;
+namespace NineSolsAPI.Utils;
 
 [Obsolete]
 public static class ReflectionUtils {
