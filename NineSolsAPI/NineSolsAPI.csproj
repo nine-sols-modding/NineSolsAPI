@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <Version>1.2.3</Version>
         <Authors>jakobhellermann@protonmail.com</Authors>
@@ -81,9 +81,7 @@
         <ItemGroup>
             <MissingReferences Include="@(Reference)" Condition="!Exists('%(Reference.HintPath)')" />
         </ItemGroup>
-        <Error Condition="@(MissingReferences->Count()) > 0" Text="Missing reference(s);
-@(MissingReferences->'%(HintPath)', ',&#x0A;')
-Did you forget to adjust your NineSolsPath '$(DllPath)'?" />
+        <Error Condition="@(MissingReferences-&gt;Count()) &gt; 0" Text="Missing reference(s);&#xD;&#xA;@(MissingReferences->'%(HintPath)', ',&#xA;')&#xD;&#xA;Did you forget to adjust your NineSolsPath '$(DllPath)'?" />
     </Target>
 
     <Target Name="CopyMod" AfterTargets="PostBuildEvent" Condition="'$(CopyDir)' != ''">
