@@ -44,6 +44,11 @@ public class NineSolsAPICore : BaseUnityPlugin {
         Instance = this;
         Log.Init(Logger);
 
+        // Required since the Nov 4th 2025 base game patch. Without this, the BepInExManager object gets unloaded during wakeup,
+        // causing all mods the player "loaded" to be immediately unloaded and thus never actually modify the game.
+        var bepinexManagerObject = this.gameObject;
+        bepinexManagerObject.hideFlags = HideFlags.HideAndDontSave;
+
         // it's unclear when bepinex registers this itself, we've run into bugs here
         if (!TomlTypeConverter.CanConvert(typeof(KeyboardShortcut))) {
             TomlTypeConverter.AddConverter(typeof(KeyboardShortcut),
@@ -114,6 +119,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
 
     private Canvas CreateFullscreenCanvas() {
         var fullscreenCanvasObject = new GameObject("NineSolsAPI-FullscreenCanvas");
+        fullscreenCanvasObject.hideFlags = HideFlags.HideAndDontSave; // required to keep this object alive since the Nov 4th 2025 base game patch
         var theFullscreenCanvas = fullscreenCanvasObject.AddComponent<Canvas>();
         theFullscreenCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
