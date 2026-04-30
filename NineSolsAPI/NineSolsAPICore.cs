@@ -31,6 +31,9 @@ public class NineSolsAPICore : BaseUnityPlugin {
 
     private RectTransform? progressBar;
 
+    private ConfigEntry<bool> configDisableAchievements = null!;
+    internal static bool AchivementsEnabled { get => !NineSolsAPICore.Instance?.configDisableAchievements.Value ?? false; }
+
     private float LoadProgress {
         set {
             SetProgress(value);
@@ -64,6 +67,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
             preloader = new Preloader(progress => LoadProgress = progress);
             ToastManager = new ToastManager();
             titlescreenModifications.Load();
+            configDisableAchievements = Config.Bind("Achievements", "Disable achievements", true);
             SceneManager.sceneLoaded += OnSceneLoaded;
             RCGLifeCycle.DontDestroyForever(gameObject);
 
