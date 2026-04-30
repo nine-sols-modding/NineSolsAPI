@@ -11,7 +11,7 @@ namespace NineSolsAPI.Patches;
 public class Patches {
     [HarmonyPatch(typeof(AchievementData), "OnAcquired")]
     [HarmonyPrefix]
-    private static bool AchievementAcquired(ref AchievementData __instance) => false;
+    private static bool AchievementAcquired(ref AchievementData __instance) => NineSolsAPICore.AchivementsEnabled;
 
     [HarmonyPatch(typeof(LogoLogic), nameof(LogoLogic.Start))]
     [HarmonyPostfix]

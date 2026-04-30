@@ -9,3 +9,4 @@ A library mod containing utilities like
 - (in the future) mod configuration in the title screen
 
 It also skips the starting animation and disable steam achievements while the mod is loaded.
+- disabling achievements can be configured using the [BepInEx configuration manager](https://thunderstore.io/c/nine-sols/p/ninesolsmodding/BepinExConfigurationManager/)
