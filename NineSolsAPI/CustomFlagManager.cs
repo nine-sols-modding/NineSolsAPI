@@ -20,6 +20,7 @@ public class CustomFlagManager
     private static readonly string String_InsertCustomFlags_End = "{0} Inserted to flag dictionary.";
     private static readonly string String_CreateNewFlagBase_NewFlagInGameWarning = "New flags cannot be created during gameplay.";
     private static readonly string String_CreateNewFlagBase_FlagCreationError = "Flag creation failed: {0}";
+    private static readonly string String_enabled_ToggleDuringGameplayWarning = "CustomFlagManager instance {0} cannot be toggled during gameplay.";
 
     internal static SaveSlotModMetaData[] saveModMetaDataList = new SaveSlotModMetaData[5];
 
@@ -148,8 +149,22 @@ public class CustomFlagManager
 
     // NON-STATIC
 
-    public bool enabled => _enabled;
-    public bool _enabled;
+    public bool enabled
+    {
+        get
+        {
+            return _enabled;
+        }
+        set
+        {
+            if (!inGame)
+                _enabled = value;
+            else
+                Log.Warning(string.Format(String_enabled_ToggleDuringGameplayWarning, guid));
+        }
+    }
+
+    private bool _enabled;
 
     public Dictionary<string, GameFlagBase> flags => _flags;
     internal Dictionary<string, GameFlagBase> _flags = null!;
