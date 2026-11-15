@@ -57,6 +57,7 @@ public class CustomFlagManager
 
     internal static void InsertCustomFlags()
     {
+        inGame = true;
         if (insertedFlagCount > 0)
         {
             RemoveCustomFlags();
