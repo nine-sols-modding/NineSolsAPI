@@ -118,20 +118,33 @@ public class CustomFlagManager
 
     internal static string InsertModListBeforeBinarySerialization(string? meta)
     {
-        if (meta == null || allClassInstances.Count <= 1)
-        {
-            return meta!;
-        }
-        string output = meta;
+        if (meta == null) return meta!;
+        
         SaveSlotModMetaData modMetaData = new();
-        modMetaData.modList = CustomFlagManager.allClassInstances.Values.Select(cfm => cfm.modData).ToList();
+
+        foreach (var instance in allClassInstances.Values)
+        {
+            if (instance.enabled)
+            {
+                modMetaData.modList.Add(instance.modData);
+            }
+        }
+
+        if (modMetaData.modList.Count <= 1)
+        {
+            Log.Debug(meta);
+            return meta;
+        }
+        
         string modMetaDataString = JsonUtils.Serialize(modMetaData);
+
         modMetaDataString = modMetaDataString.Remove(0, 1);
-        output = output.Remove(output.Length - 1, 1);
-        output += ",";
-        output += modMetaDataString;
-        Log.Debug(output);
-        return output;
+        meta = meta.Remove(meta.Length - 1, 1);
+        meta += ",";
+        meta += modMetaDataString;
+
+        Log.Debug(meta);
+        return meta;
     }
 
     internal static void ReadModListBeforeJSONDeserialization(string? meta, string? path)
