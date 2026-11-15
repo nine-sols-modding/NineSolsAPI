@@ -11,6 +11,12 @@ namespace NineSolsAPI;
 public class CustomFlagManager
 {
     // STATIC
+
+    private static readonly string String_InsertCustomFlags_Begin = "Inserting flags...";
+    private static readonly string String_InsertCustomFlags_End = "{0} Inserted to flag dictionary.";
+    private static readonly string String_CreateNewFlagBase_NewFlagInGameError = "New flags cannot be created ingame.";
+    private static readonly string String_CreateNewFlagBase_FlagCreationError = "Flag creation failed: {0}";
+    
     internal static SaveSlotModMetaData[] saveModMetaDataList = new SaveSlotModMetaData[5];
 
     internal static Dictionary<string, CustomFlagManager> allClassInstances = new();
@@ -24,7 +30,7 @@ public class CustomFlagManager
             return;
         }
 
-        Log.Debug("Inserting flags...");
+        Log.Debug(String_InsertCustomFlags_Begin);
 
         for (int i = allClassInstances.Count - 1; i >= 0; i--)
         {
@@ -50,7 +56,7 @@ public class CustomFlagManager
         }
 
         flagsInserted = true;
-        Log.Debug($"{count} Inserted to flag dictionary.");
+        Log.Debug(string.Format(String_InsertCustomFlags_End, count));
     }
 
     private static GameFlagBase CreateNewFlagBase(BaseUnityPlugin owner, string name, GameFlagBase flag)
@@ -68,7 +74,7 @@ public class CustomFlagManager
         
         if (flagsInserted)
         {
-            Log.Error("New flags must be created before a save is loaded/created.");
+            Log.Error(String_CreateNewFlagBase_NewFlagInGameError);
             return flag;
         }
 
@@ -78,7 +84,7 @@ public class CustomFlagManager
         }
         catch (ArgumentException e)
         {
-            Log.Error($"Flag creation failed: {e}");
+            Log.Error(string.Format(String_CreateNewFlagBase_FlagCreationError, e));
         }
 
         return flag;
