@@ -62,6 +62,14 @@ public class CustomFlagManager
         {
             RemoveCustomFlags();
         }
+
+        foreach (var modData in saveModMetaDataList[slotIndex].modList)
+        {
+            if (allClassInstances.TryGetValue(modData.guid, out var instance))
+            {
+                instance._enabled = true;
+            }
+        }
         
         Log.Debug(String_InsertCustomFlags_Begin);
 
