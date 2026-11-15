@@ -55,14 +55,14 @@ public class CustomFlagManager
         Log.Debug("Removed.");
     }
 
-    internal static void InsertCustomFlags()
+    internal static void InsertCustomFlags(int slotIndex)
     {
         inGame = true;
         if (insertedFlagCount > 0)
         {
             RemoveCustomFlags();
         }
-
+        
         Log.Debug(String_InsertCustomFlags_Begin);
 
         for (int i = allClassInstances.Count - 1; i >= 0; i--)
