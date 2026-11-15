@@ -14,7 +14,7 @@ public class CustomFlagManager
 
     private static readonly string String_InsertCustomFlags_Begin = "Inserting flags...";
     private static readonly string String_InsertCustomFlags_End = "{0} Inserted to flag dictionary.";
-    private static readonly string String_CreateNewFlagBase_NewFlagInGameError = "New flags cannot be created ingame.";
+    private static readonly string String_CreateNewFlagBase_NewFlagInGameError = "New flags cannot be created during gameplay.";
     private static readonly string String_CreateNewFlagBase_FlagCreationError = "Flag creation failed: {0}";
     
     internal static SaveSlotModMetaData[] saveModMetaDataList = new SaveSlotModMetaData[5];
