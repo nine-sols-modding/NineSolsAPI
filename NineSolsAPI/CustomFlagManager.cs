@@ -4,6 +4,7 @@ using System.Linq;
 using BepInEx;
 using JetBrains.Annotations;
 using NineSolsAPI.Utils;
+using UnityEngine.SceneManagement;
 
 namespace NineSolsAPI;
 
@@ -12,51 +13,74 @@ public class CustomFlagManager
 {
     // STATIC
 
+    private static SaveManager SaveManagerInstance => SaveManager.Instance;
+
+
     private static readonly string String_InsertCustomFlags_Begin = "Inserting flags...";
     private static readonly string String_InsertCustomFlags_End = "{0} Inserted to flag dictionary.";
     private static readonly string String_CreateNewFlagBase_NewFlagInGameError = "New flags cannot be created during gameplay.";
     private static readonly string String_CreateNewFlagBase_FlagCreationError = "Flag creation failed: {0}";
-    
+
     internal static SaveSlotModMetaData[] saveModMetaDataList = new SaveSlotModMetaData[5];
 
     internal static Dictionary<string, CustomFlagManager> allClassInstances = new();
 
-    private static bool flagsInserted = false;
-    
-    internal static void InsertCustomFlags()
+    private static int insertedFlagCount = 0;
+
+    private static bool inGame = false;
+
+    internal static void Update_inGame(Scene scene)
     {
-        if (flagsInserted)
+        inGame = (scene.name != "TitleScreenMenu" && scene.name != "Logo");
+    }
+
+    private static void RemoveCustomFlags()
+    {
+        if (insertedFlagCount == 0)
         {
             return;
+        }
+        Log.Debug("Removing...");
+
+        int size = SaveManagerInstance.allFlags.Flags.Count - 1;
+        var flagDict = SaveManagerInstance.allFlags.flagDict;
+        var Flags = SaveManagerInstance.allFlags.Flags;
+        for (int i = 0; i < insertedFlagCount; i++)
+        {
+            flagDict.Remove(flagDict.ElementAt(size - i).Key);
+            Flags.RemoveAt(size - i);
+        }
+        insertedFlagCount = 0;
+        Log.Debug("Removed.");
+    }
+
+    internal static void InsertCustomFlags()
+    {
+        if (insertedFlagCount > 0)
+        {
+            RemoveCustomFlags();
         }
 
         Log.Debug(String_InsertCustomFlags_Begin);
 
         for (int i = allClassInstances.Count - 1; i >= 0; i--)
         {
-            var GUID = allClassInstances.ElementAt(i).Key;
-            var instanceFlags = allClassInstances[GUID]._flags;
-            
-            if (instanceFlags.Count == 0 && i != 0)
+            var instance = allClassInstances.ElementAt(i).Value;
+
+            if ((!instance.enabled || instance.flagCount == 0) && (i != 0))
             {
-                allClassInstances.Remove(GUID);
+                instance._enabled = false;
                 continue;
             }
-            foreach (var flag in instanceFlags.Values)
+            foreach (var flag in instance.flags.Values)
             {
-                SaveManager.Instance.allFlags.FlagDict.Add(flag.FinalSaveID, flag);
-                SaveManager.Instance.allFlags.Flags.Add(flag);
+                SaveManagerInstance.allFlags.FlagDict.Add(flag.FinalSaveID, flag);
+                SaveManagerInstance.allFlags.Flags.Add(flag);
             }
+            insertedFlagCount += instance.flagCount;
         }
 
-        int count = 0;
-        foreach (var instance in allClassInstances.Values)
-        {
-            count += instance.flags.Count;
-        }
-
-        flagsInserted = true;
-        Log.Debug(string.Format(String_InsertCustomFlags_End, count));
+        Log.Debug(string.Format(String_InsertCustomFlags_End, insertedFlagCount));
     }
 
     private static GameFlagBase CreateNewFlagBase(BaseUnityPlugin owner, string name, GameFlagBase flag)
@@ -71,8 +95,8 @@ public class CustomFlagManager
             // Mainly for plugins that are loaded with ScriptEngine. Prevents errors when reloading ingame.
             return instanceFlags[flag.FinalSaveID];
         }
-        
-        if (flagsInserted)
+
+        if (inGame)
         {
             Log.Error(String_CreateNewFlagBase_NewFlagInGameError);
             return flag;
@@ -124,6 +148,9 @@ public class CustomFlagManager
 
     // NON-STATIC
 
+    public bool enabled => _enabled;
+    public bool _enabled;
+
     public Dictionary<string, GameFlagBase> flags => _flags;
     internal Dictionary<string, GameFlagBase> _flags = null!;
 
@@ -135,9 +162,10 @@ public class CustomFlagManager
     internal string guid => modData.guid;
     internal string version => modData.version;
     internal int flagCount => flags.Count;
-    
+
     public CustomFlagManager(BaseUnityPlugin owner, string url = "")
     {
+        this._enabled = true;
         this._flags = new();
         this.modData = new(owner, url);
         this.owner = owner;
@@ -146,10 +174,10 @@ public class CustomFlagManager
         {
             CustomFlagManager.allClassInstances.Remove(modData.guid);
         }
-        
+
         CustomFlagManager.allClassInstances.Add(modData.guid, this);
     }
-    
+
     public ScriptableDataBool CreateScriptableDataBool(string name, bool defaultValue = false)
     {
         ScriptableDataBool flag = new ScriptableDataBool();
