@@ -120,7 +120,7 @@ internal class TitlescreenModifications {
 
 internal class TitleScreenModList
 {
-    private static SaveSlotModMetaData[] saveModMetaDataList => CustomFlagManager.saveModMetaDataList;
+    private static Dictionary<string, ModData>[] saveModMetaDataList => CustomFlagManager.saveModMetaDataList;
     private static Dictionary<string, CustomFlagManager> modDict => CustomFlagManager.allClassInstances;
 
     private static readonly string modList_GameObject_Label_Text_String = "Mod List";
@@ -182,7 +182,7 @@ internal class TitleScreenModList
         }
         return true;
     }
-
+    
     private void LoadModList()
     {
         var SavePanel_BackButton = GameObject.Find("MenuLogic/MainMenuLogic/Providers/StartGame SaveSlotPanel/SavePanel_BackButton");
@@ -218,13 +218,11 @@ internal class TitleScreenModList
 
         for (int i = 0; i < 5; i++)
         {
-            SaveSlotModMetaData? meta = saveModMetaDataList[i];
+            Dictionary<string, ModData> meta = saveModMetaDataList[i];
 
-            Dictionary<string, ModData>? slotModDict = saveModMetaDataList[i]?.modList.ToDictionary(mod => mod.guid);
-
-            for (int j = 0; j < slotModDict?.Count; j++)
+            for (int j = 0; j < meta?.Count; j++)
             {
-                ModData data = slotModDict.ElementAt(j).Value;
+                ModData data = meta.ElementAt(j).Value;
 
                 GameObject newButton = ObjectUtils.InstantiateAutoReference(buttonClone, buttonClone.transform.parent, false);
                 modButtons[i].Add(data.guid, newButton);
@@ -258,7 +256,7 @@ internal class TitleScreenModList
             // Check for new mod(s)
             foreach (CustomFlagManager data in modDict.Values)
             {
-                if (slotModDict != null && !slotModDict.ContainsKey(data.guid) && data.flagCount > 0)
+                if (meta != null && !meta.ContainsKey(data.guid) && data.flagCount > 0)
                 {
                     desyncTracker[(int)Desyncs.New][i]++;
                 }

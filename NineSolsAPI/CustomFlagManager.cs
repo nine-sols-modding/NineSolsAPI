@@ -22,7 +22,7 @@ public class CustomFlagManager
     private static readonly string String_CreateNewFlagBase_FlagCreationError = "Flag creation failed: {0}";
     private static readonly string String_enabled_ToggleDuringGameplayWarning = "CustomFlagManager instance {0} cannot be toggled during gameplay.";
 
-    internal static SaveSlotModMetaData[] saveModMetaDataList = new SaveSlotModMetaData[5];
+    internal static Dictionary<string, ModData>[] saveModMetaDataList = new Dictionary<string, ModData>[5];
 
     internal static Dictionary<string, CustomFlagManager> allClassInstances = new();
 
@@ -63,7 +63,7 @@ public class CustomFlagManager
             RemoveCustomFlags();
         }
 
-        foreach (var modData in saveModMetaDataList[slotIndex].modList)
+        foreach (var modData in saveModMetaDataList[slotIndex].Values)
         {
             if (allClassInstances.TryGetValue(modData.guid, out var instance))
             {
@@ -164,7 +164,7 @@ public class CustomFlagManager
         int slotNumber = (int)path[8] - 48;
         if (slotNumber >= 0 && slotNumber <= 4)
         {
-            saveModMetaDataList[slotNumber] = JsonUtils.Deserialize<SaveSlotModMetaData>(meta)!;
+            saveModMetaDataList[slotNumber] = JsonUtils.Deserialize<SaveSlotModMetaData>(meta)!.modList.ToDictionary(Moddata => Moddata.guid);
         }
     }
 
@@ -282,7 +282,7 @@ internal class SaveSlotModMetaData
 {
     public SaveSlotModMetaData()
     {
-        modList = new List<ModData>();
+        modList = new();
     }
     public List<ModData> modList;
 }
