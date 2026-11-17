@@ -114,7 +114,6 @@ public class CustomFlagManager
         {
             return;
         }
-        Log.Debug("Removing...");
 
         int size = SaveManagerInstance.allFlags.Flags.Count - 1;
         var flagDict = SaveManagerInstance.allFlags.flagDict;
@@ -125,7 +124,6 @@ public class CustomFlagManager
             Flags.RemoveAt(size - i);
         }
         insertedFlagCount = 0;
-        Log.Debug("Removed.");
     }
 
     internal static void InsertCustomFlags(int slotIndex)
