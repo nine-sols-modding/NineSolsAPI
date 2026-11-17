@@ -121,7 +121,6 @@ internal class TitlescreenModifications {
 internal class TitleScreenModList
 {
     private static Dictionary<string, ModData>[] saveModMetaDataList => CustomFlagManager.saveModMetaDataList;
-    private static Dictionary<string, CustomFlagManager> modDict => CustomFlagManager.allClassInstances;
 
     private static readonly string String_modList_GameObject_Label_Text = "Mod List";
     private static readonly string String_URLConfirm = "Open the download page of {0}?\n({1})";
