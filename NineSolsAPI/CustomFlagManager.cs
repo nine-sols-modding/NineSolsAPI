@@ -276,9 +276,9 @@ public class CustomFlagManager
     internal string version => modData.version;
     internal int flagCount => flags.Count;
 
-    public CustomFlagManager(BaseUnityPlugin owner, string url = "")
+    public CustomFlagManager(BaseUnityPlugin owner, bool enabled = true, string url = "")
     {
-        this._enabled = true;
+        this._enabled = enabled;
         this._flags = new();
         this.modData = new(owner, url);
         this.owner = owner;

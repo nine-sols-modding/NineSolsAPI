@@ -80,7 +80,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
             if (GameVersions.IsVersion(GameVersions.SpeedrunPatch))
                 harmony.PatchAll(typeof(Patches.PatchesSpeedrunpatch));
 
-            customFlagManager = new(Instance, "https://github.com/nine-sols-modding/NineSolsAPI");
+            customFlagManager = new(Instance, true, "https://github.com/nine-sols-modding/NineSolsAPI");
 
         } catch (Exception e) {
             Log.Error($"Failed to initialized modding API: {e}");
