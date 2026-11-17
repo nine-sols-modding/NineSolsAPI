@@ -118,16 +118,14 @@ internal class TitlescreenModifications {
     }
 }
 
-internal class TitleScreenModList
-{
+internal class TitleScreenModList {
     private static Dictionary<string, ModData>[] saveModMetaDataList => CustomFlagManager.saveModMetaDataList;
 
     private static readonly string String_modList_GameObject_Label_Text = "Mod List";
     private static readonly string String_URLConfirm = "Open the download page of {0}?\n({1})";
     private static readonly string String_transpilerFailedWarningLabel_Text = "An error occured where the save file mod list metadata can't be read/written. Check the console for more details. Proceed at your own risk!";
 
-    internal TitleScreenModList()
-    {
+    internal TitleScreenModList() {
         for (int i = 0; i < modButtons.Length; i++)
             modButtons[i] = new Dictionary<string, GameObject>();
     }
@@ -142,8 +140,7 @@ internal class TitleScreenModList
     private GameObject modList_GameObject_saveIndexLabel = null!;
     private GameObject transpilerFailedWarningLabel = null!;
     
-    private void LoadModList()
-    {
+    private void LoadModList() {
         var SavePanel_BackButton = GameObject.Find("MenuLogic/MainMenuLogic/Providers/StartGame SaveSlotPanel/SavePanel_BackButton");
         buttonClone = ObjectUtils.InstantiateAutoReference(SavePanel_BackButton, modList_GameObject.transform.Find("Viewport/Content"), false);
         buttonClone.transform.Find("Text (TMP)").GetComponent<Localize>().enabled = false;
@@ -175,10 +172,8 @@ internal class TitleScreenModList
         buttonClone.SetActive(false);
         buttonClone.name = "buttonClone";
 
-        for (int i = 0; i < 5; i++)
-        {
-            for (int j = 0; j < saveModMetaDataList[i].Count; j++)
-            {
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < saveModMetaDataList[i].Count; j++) {
                 ModData Moddata = saveModMetaDataList[i].ElementAt(j).Value;
 
                 GameObject newButton = ObjectUtils.InstantiateAutoReference(buttonClone, buttonClone.transform.parent, false);
@@ -196,8 +191,7 @@ internal class TitleScreenModList
                 if (CustomFlagManager.slotDesyncTracker[i, (int)CustomFlagManager.Desyncs.DifferentVersion].Contains(Moddata.guid))
                     newButtonColorOverlay.color = new Vector4(1f, 0.5f, 0f, 0.25f); // Orange
 
-                if (Moddata.url != "")
-                {
+                if (Moddata.url != "") {
                     newButton.GetComponent<Button>().onClick.AddListener(() =>
                     SingletonBehaviour<StartMenuLogic>.Instance.confirmPanel.ShowConfirm(string.Format(String_URLConfirm, Moddata.name, Moddata.url), () =>
                     Application.OpenURL(Moddata.url)));
@@ -207,48 +201,37 @@ internal class TitleScreenModList
         modListLoaded = true;
     }
 
-    private void DisplayModListForSelectedFile(UIControlButton button)
-    {
+    private void DisplayModListForSelectedFile(UIControlButton button) {
         CustomFlagManager.startGameConfirmed = false;
         if (!modListLoaded)
-        {
             LoadModList();
-        }
 
         char slotNumber_CHAR = button.name[8];
         modList_GameObject_saveIndexLabel.GetComponent<TextMeshProUGUI>().text = ((char)(slotNumber_CHAR + 1)).ToString();
 
         int slotNumber_INT = slotNumber_CHAR - 48;
         for (int i = 0; i < 5; i++)
-        {
             foreach (var buttonoff in modButtons[i])
-            {
                 buttonoff.Value.SetActive(slotNumber_INT == i);
-            }
-        }
     }
 
-    public void Unload()
-    {
+    public void Unload() {
         modListLoaded = false;
         CustomFlagManager.startGameConfirmed = false;
         GameObject.Destroy(modList_GameObject);
         GameObject.Find("MenuLogic/MainMenuLogic/Providers/StartGame SaveSlotPanel/BG").transform.GetChild(2).GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -12);
         GameObject.Find("MenuLogic/MainMenuLogic/Providers/StartGame SaveSlotPanel/BG/Frame/UselessUI").transform.localPosition = new Vector2(0, -215);
         foreach (var save in modButtons)
-        {
             save.Clear();
-        }
-        for (int i = 0; i < 4; i++)
-        {
+
+        for (int i = 0; i < 4; i++) {
             string slotpath = "/MenuLogic/MainMenuLogic/Providers/StartGame SaveSlotPanel/SlotGroup/SlotGroup H/";
             GameObject slot = GameObject.Find($"{slotpath}SaveSlotContainer_Slot{i}/SaveSlot{i}");
             slot.GetComponent<SaveSlotUIButton>().OnSelectedEvent.RemoveListener(DisplayModListForSelectedFile);
         }
     }
 
-    public void Load()
-    {
+    public void Load() {
         Unload();
         
         // Mod list window
@@ -291,8 +274,7 @@ internal class TitleScreenModList
         GameObject.Find("MenuLogic/MainMenuLogic/Providers/StartGame SaveSlotPanel/BG/Frame/UselessUI").transform.localPosition = new Vector2(-20, -215);
 
         // Adding listeners to save slot buttons to update modlist when selected
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             string slotpath = "/MenuLogic/MainMenuLogic/Providers/StartGame SaveSlotPanel/SlotGroup/SlotGroup H/";
             GameObject slot = GameObject.Find($"{slotpath}SaveSlotContainer_Slot{i}/SaveSlot{i}");
             slot.GetComponent<SaveSlotUIButton>().OnSelectedEvent.AddListener(DisplayModListForSelectedFile);
