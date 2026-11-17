@@ -123,65 +123,25 @@ internal class TitleScreenModList
     private static Dictionary<string, ModData>[] saveModMetaDataList => CustomFlagManager.saveModMetaDataList;
     private static Dictionary<string, CustomFlagManager> modDict => CustomFlagManager.allClassInstances;
 
-    private static readonly string modList_GameObject_Label_Text_String = "Mod List";
-    private static readonly string URLConfirm_String = "Open the download page of {0}?\n({1})";
-    private static readonly string notSyncedConfirm_String = "This save's mods are not synced with your mods. Load anyway?\n({0} missing)\n({1} different version)\n({2} new)";
-    private static readonly string transpilerFailedWarningLabel_Txt_String = "An error occured where the save file mod list metadata can't be read/written. Check the console for more details. Proceed at your own risk!";
+    private static readonly string String_modList_GameObject_Label_Text = "Mod List";
+    private static readonly string String_URLConfirm = "Open the download page of {0}?\n({1})";
+    private static readonly string String_transpilerFailedWarningLabel_Text = "An error occured where the save file mod list metadata can't be read/written. Check the console for more details. Proceed at your own risk!";
 
-    private static readonly Color RED = new Vector4(1f, 0f, 0f, 0.25f);
-    private static readonly Color ORANGE = new Vector4(1f, 0.5f, 0f, 0.25f);
-
-    private enum Desyncs
+    internal TitleScreenModList()
     {
-        Missing,
-        DifferentVersion,
-        New
+        for (int i = 0; i < modButtons.Length; i++)
+            modButtons[i] = new Dictionary<string, GameObject>();
     }
-    private int[][] desyncTracker = new int[][]
-    {
-        new int[5],
-        new int[5],
-        new int[5]
-    };
 
     private bool modListLoaded = false;
-    private bool startGameConfirmed = false;
     internal bool transpilerFailed = false;
 
-    private Dictionary<string, GameObject>[] modButtons = new Dictionary<string, GameObject>[5]
-    {
-        new Dictionary<string, GameObject>(),
-        new Dictionary<string, GameObject>(),
-        new Dictionary<string, GameObject>(),
-        new Dictionary<string, GameObject>(),
-        new Dictionary<string, GameObject>()
-    };
+    private Dictionary<string, GameObject>[] modButtons = new Dictionary<string, GameObject>[5];
 
     private GameObject modList_GameObject = null!;
     private GameObject buttonClone = null!;
     private GameObject modList_GameObject_saveIndexLabel = null!;
     private GameObject transpilerFailedWarningLabel = null!;
-
-    internal bool CheckModDesyncsBeforeLoadSave(SaveSlotUIButton slotButtonInstance)
-    {
-        if (startGameConfirmed)
-        {
-            return true;
-        }
-        int slotNumber = (int)slotButtonInstance.name[8] - 48;
-
-        int Missing = desyncTracker[(int) Desyncs.Missing][slotNumber];
-        int DifferentVersion = desyncTracker[(int) Desyncs.DifferentVersion][slotNumber];
-        int New = desyncTracker[(int) Desyncs.New][slotNumber];
-
-        if (Missing > 0 || DifferentVersion > 0 || New > 0)
-        {
-            startGameConfirmed = true;
-            SingletonBehaviour<StartMenuLogic>.Instance.confirmPanel.ShowConfirm(string.Format(notSyncedConfirm_String, Missing, DifferentVersion, New), () => slotButtonInstance.Submit());
-            return false;
-        }
-        return true;
-    }
     
     private void LoadModList()
     {
@@ -218,47 +178,30 @@ internal class TitleScreenModList
 
         for (int i = 0; i < 5; i++)
         {
-            Dictionary<string, ModData> meta = saveModMetaDataList[i];
-
-            for (int j = 0; j < meta?.Count; j++)
+            for (int j = 0; j < saveModMetaDataList[i].Count; j++)
             {
-                ModData data = meta.ElementAt(j).Value;
+                ModData Moddata = saveModMetaDataList[i].ElementAt(j).Value;
 
                 GameObject newButton = ObjectUtils.InstantiateAutoReference(buttonClone, buttonClone.transform.parent, false);
-                modButtons[i].Add(data.guid, newButton);
-                newButton.name = data.guid;
+                modButtons[i].Add(Moddata.guid, newButton);
+                newButton.name = Moddata.guid;
                 newButton.GetComponent<RectTransform>().anchoredPosition += new Vector2(0, (-50 * j));
                 var newButtonText = newButton.transform.Find("Text (TMP)").gameObject.GetComponent<TextMeshProUGUI>();
-                newButtonText.text = $"{data.name} - {data.version}";
+                newButtonText.text = $"{Moddata.name} - {Moddata.version}";
 
                 var newButtonColorOverlay = newButton.transform.Find("overlay").GetComponent<Image>();
-                // Check if mod is missing
-                if (!modDict.ContainsKey(data.guid))
-                {
-                    newButtonColorOverlay.color = RED;
-                    desyncTracker[(int)Desyncs.Missing][i]++;
-                }
-                // Check if mod is different version
-                else if (modDict[data.guid].version != data.version)
-                {
-                    newButtonColorOverlay.color = ORANGE;
-                    desyncTracker[(int)Desyncs.DifferentVersion][i]++;
-                }
-                
-                if (data.url != "")
+
+                if (CustomFlagManager.slotDesyncTracker[i,(int)CustomFlagManager.Desyncs.Missing].Contains(Moddata.guid))
+                    newButtonColorOverlay.color = new Vector4(1f, 0f, 0f, 0.25f); // Red
+
+                if (CustomFlagManager.slotDesyncTracker[i, (int)CustomFlagManager.Desyncs.DifferentVersion].Contains(Moddata.guid))
+                    newButtonColorOverlay.color = new Vector4(1f, 0.5f, 0f, 0.25f); // Orange
+
+                if (Moddata.url != "")
                 {
                     newButton.GetComponent<Button>().onClick.AddListener(() =>
-                    SingletonBehaviour<StartMenuLogic>.Instance.confirmPanel.ShowConfirm(string.Format(URLConfirm_String, data.name, data.url), () =>
-                    Application.OpenURL(data.url)));
-                }
-            }
-            
-            // Check for new mod(s)
-            foreach (CustomFlagManager data in modDict.Values)
-            {
-                if (meta != null && !meta.ContainsKey(data.guid) && data.flagCount > 0)
-                {
-                    desyncTracker[(int)Desyncs.New][i]++;
+                    SingletonBehaviour<StartMenuLogic>.Instance.confirmPanel.ShowConfirm(string.Format(String_URLConfirm, Moddata.name, Moddata.url), () =>
+                    Application.OpenURL(Moddata.url)));
                 }
             }
         }
@@ -267,7 +210,7 @@ internal class TitleScreenModList
 
     private void DisplayModListForSelectedFile(UIControlButton button)
     {
-        startGameConfirmed = false;
+        CustomFlagManager.startGameConfirmed = false;
         if (!modListLoaded)
         {
             LoadModList();
@@ -289,7 +232,7 @@ internal class TitleScreenModList
     public void Unload()
     {
         modListLoaded = false;
-        startGameConfirmed = false;
+        CustomFlagManager.startGameConfirmed = false;
         GameObject.Destroy(modList_GameObject);
         GameObject.Find("MenuLogic/MainMenuLogic/Providers/StartGame SaveSlotPanel/BG").transform.GetChild(2).GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -12);
         GameObject.Find("MenuLogic/MainMenuLogic/Providers/StartGame SaveSlotPanel/BG/Frame/UselessUI").transform.localPosition = new Vector2(0, -215);
@@ -302,13 +245,6 @@ internal class TitleScreenModList
             string slotpath = "/MenuLogic/MainMenuLogic/Providers/StartGame SaveSlotPanel/SlotGroup/SlotGroup H/";
             GameObject slot = GameObject.Find($"{slotpath}SaveSlotContainer_Slot{i}/SaveSlot{i}");
             slot.GetComponent<SaveSlotUIButton>().OnSelectedEvent.RemoveListener(DisplayModListForSelectedFile);
-        }
-        for (int i = 0; i < desyncTracker.Length; i++)
-        {
-            for (int j = 0; j < 3; j++)
-            {
-                desyncTracker[i][j] = 0;
-            }
         }
     }
 
@@ -336,7 +272,7 @@ internal class TitleScreenModList
         modList_GameObject_Label.transform.SetParent(modList_GameObject.transform);
 
         var modList_GameObject_Label_Text = modList_GameObject_Label.AddComponent<TextMeshProUGUI>();
-        modList_GameObject_Label_Text.text = modList_GameObject_Label_Text_String;
+        modList_GameObject_Label_Text.text = String_modList_GameObject_Label_Text;
         modList_GameObject_Label_Text.font = GameObject.Find("/MenuLogic/MainMenuLogic/Providers/StartGame SaveSlotPanel/Title Text").GetComponent<TextMeshProUGUI>().font;
         modList_GameObject_Label_Text.alignment = TextAlignmentOptions.Center;
         modList_GameObject_Label_Text.fontSize = 32;
@@ -371,10 +307,10 @@ internal class TitleScreenModList
         transpilerFailedWarningLabel_Rect.anchoredPosition = new Vector2(0, 0);
         transpilerFailedWarningLabel_Rect.sizeDelta = new Vector2(440, 200);
 
-        TextMeshProUGUI transpilerFailedWarningLabel_Txt = transpilerFailedWarningLabel.GetComponent<TextMeshProUGUI>();
-        transpilerFailedWarningLabel_Txt.enableWordWrapping = true;
-        transpilerFailedWarningLabel_Txt.text = transpilerFailedWarningLabel_Txt_String;
-        transpilerFailedWarningLabel_Txt.color = Color.red;
+        TextMeshProUGUI transpilerFailedWarningLabel_Text = transpilerFailedWarningLabel.GetComponent<TextMeshProUGUI>();
+        transpilerFailedWarningLabel_Text.enableWordWrapping = true;
+        transpilerFailedWarningLabel_Text.text = String_transpilerFailedWarningLabel_Text;
+        transpilerFailedWarningLabel_Text.color = Color.red;
 
         transpilerFailedWarningLabel.SetActive(transpilerFailed);
     }
