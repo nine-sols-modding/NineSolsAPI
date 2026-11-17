@@ -76,7 +76,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
             harmony.PatchAll(typeof(Patches.Patches));
             harmony.PatchAll(typeof(Patches.SteamAPI));
             harmony.PatchAll(typeof(Patches.Transpilers)); harmony.PatchAll(typeof(Patches.Transpilers.ReadMetaInSave_TargetMethod));
-            
+
             if (GameVersions.IsVersion(GameVersions.SpeedrunPatch))
                 harmony.PatchAll(typeof(Patches.PatchesSpeedrunpatch));
 
@@ -125,6 +125,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode) {
         titlescreenModifications.MaybeExtendMainMenu(scene);
+        CustomFlagManager.CheckIfInGame(scene);
     }
 
     private Canvas CreateFullscreenCanvas() {
