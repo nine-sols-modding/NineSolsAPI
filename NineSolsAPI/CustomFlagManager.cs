@@ -103,7 +103,7 @@ public class CustomFlagManager
         return true;
     }
 
-    internal static void Update_inGame(Scene scene)
+    internal static void CheckIfInGame(Scene scene)
     {
         inGame = (scene.name != "TitleScreenMenu" && scene.name != "Logo");
     }

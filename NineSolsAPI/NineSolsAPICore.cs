@@ -125,7 +125,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode) {
         titlescreenModifications.MaybeExtendMainMenu(scene);
-        CustomFlagManager.Update_inGame(scene);
+        CustomFlagManager.CheckIfInGame(scene);
     }
 
     private Canvas CreateFullscreenCanvas() {
