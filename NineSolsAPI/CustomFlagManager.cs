@@ -17,10 +17,12 @@ public class CustomFlagManager {
 
     private static readonly string String_InsertCustomFlags_Begin = "Inserting flags...";
     private static readonly string String_InsertCustomFlags_End = "{0} Inserted to flag dictionary.";
-    private static readonly string String_CreateNewFlagBase_NewFlagInGameWarning = "New flags cannot be created during gameplay.";
+    private static readonly string String_CreateNewFlagBase_NewFlagInGameWarning = "New flags of CustomFlagManager instance {0} cannot be created during gameplay.";
     private static readonly string String_CreateNewFlagBase_FlagCreationError = "Flag creation failed: {0}";
     private static readonly string String_enabled_ToggleDuringGameplayWarning = "CustomFlagManager instance {0} cannot be toggled during gameplay.";
     private static readonly string String_CheckModDesyncsBeforeLoadSave_NotSyncedConfirm = "This save's mod data is not synced with what you currently have. Load anyway?\n({0} missing)\n({1} different version)\n({2} new)";
+    private static readonly string String_CustomFlagManager_ConstructorInGameWarning = "CustomFlagManager instance {0} cannot be created during gameplay.";
+    private static readonly string String_CustomFlagManager_ConstructorWithoutSlotsLoadedException = "Plugin instance {0} attempted to reload while save slot data is loading.";
 
     private static readonly int saveSlotCount = (int)Traverse.Create(SaveManagerInstance).Field("saveSlotCount").GetValue();
 
@@ -46,30 +48,28 @@ public class CustomFlagManager {
                 slotDesyncTracker[i,j] = new();
     }
 
-    private static void CheckForDesyncs(int slotIndex) {
-        slotDesyncTracker[slotIndex, (int)Desyncs.Missing].Clear();
-        slotDesyncTracker[slotIndex, (int)Desyncs.DifferentVersion].Clear();
-        foreach (ModData modData in saveModMetaDataList[slotIndex].Values) {
-            // Check if mod is missing
-            if (!allClassInstances.ContainsKey(modData.guid))
-                slotDesyncTracker[slotIndex, (int)Desyncs.Missing].Add(modData.guid);
+    private static void CheckForAllInstanceDesyncs(int slotIndex) {
+        foreach (ModData modData in saveModMetaDataList[slotIndex].Values)
+            CheckForMissingOrDifferentVersionDesync(slotIndex, modData);
 
-            // Check if mod is different version
-            else if (allClassInstances[modData.guid].version != modData.version)
+        foreach (CustomFlagManager instance in allClassInstances.Values)
+            CheckForNewDesync(slotIndex, instance);
+    }
+    private static void CheckForMissingOrDifferentVersionDesync(int slotIndex, ModData modData) {
+        if (!allClassInstances.ContainsKey(modData.guid))
+            slotDesyncTracker[slotIndex, (int)Desyncs.Missing].Add(modData.guid);
+        else {
+            slotDesyncTracker[slotIndex, (int)Desyncs.Missing].Remove(modData.guid);
+            if (allClassInstances[modData.guid].version != modData.version)
                 slotDesyncTracker[slotIndex, (int)Desyncs.DifferentVersion].Add(modData.guid);
-        }
-        // Check for new mods
-        slotDesyncTracker[slotIndex, (int)Desyncs.New].Clear();
-        foreach (CustomFlagManager instance in allClassInstances.Values) {
-            if (!saveModMetaDataList[slotIndex].ContainsKey(instance.guid) && instance.enabled && instance.flagCount > 0)
-                slotDesyncTracker[slotIndex, (int)Desyncs.New].Add(instance.guid);
+            else
+                slotDesyncTracker[slotIndex, (int)Desyncs.DifferentVersion].Remove(modData.guid);
         }
     }
-
-    private static void CheckForNewDesyncOnSpecificInstance(int slotIndex, CustomFlagManager instance) {
+    private static void CheckForNewDesync(int slotIndex, CustomFlagManager instance) {
         if (saveModMetaDataList[slotIndex] == null)
             return;
-        if (!saveModMetaDataList[slotIndex].ContainsKey(instance.guid) && instance.enabled && instance.flagCount > 0)
+        if (!saveModMetaDataList[slotIndex].ContainsKey(instance.guid) && instance.enabled && instance.guid != "ninesolsapi")
             slotDesyncTracker[slotIndex, (int)Desyncs.New].Add(instance.guid);
         else
             slotDesyncTracker[slotIndex, (int)Desyncs.New].Remove(instance.guid);
@@ -145,6 +145,7 @@ public class CustomFlagManager {
         flag.name = name;
         flag.SetSaveID($"{GUID}.{name}.");
         var instanceFlags = allClassInstances[GUID]._flags;
+
         // Mainly for plugins that are loaded with ScriptEngine. Prevents errors when reloading ingame.
         if (instanceFlags.ContainsKey(flag.FinalSaveID))
             return instanceFlags[flag.FinalSaveID];
@@ -170,9 +171,10 @@ public class CustomFlagManager {
         
         SaveSlotModMetaData modMetaData = new();
 
-        foreach (var instance in allClassInstances.Values)
+        foreach (var instance in allClassInstances.Values) {
             if (instance.enabled)
                 modMetaData.modList.Add(instance.modData);
+        }
         
         if (modMetaData.modList.Count <= 1) {
             Log.Debug(meta);
@@ -197,7 +199,7 @@ public class CustomFlagManager {
         int slotIndex = (int)path[8] - 48;
         if (slotIndex >= 0 && slotIndex <= 4) {
             saveModMetaDataList[slotIndex] = JsonUtils.Deserialize<SaveSlotModMetaData>(meta)!.modList.ToDictionary(Moddata => Moddata.guid);
-            CheckForDesyncs(slotIndex);
+            CheckForAllInstanceDesyncs(slotIndex);
         }
     }
 
@@ -212,7 +214,7 @@ public class CustomFlagManager {
             if (!inGame) {
                 _enabled = value;
                 for (int i = 0; i < saveSlotCount; i++)
-                    CheckForNewDesyncOnSpecificInstance(i, this);
+                    CheckForNewDesync(i, this);
             }
             else
                 Log.Warning(string.Format(String_enabled_ToggleDuringGameplayWarning, guid));
@@ -232,17 +234,40 @@ public class CustomFlagManager {
     internal string guid => modData.guid;
     internal string version => modData.version;
     internal int flagCount => flags.Count;
-
+    
     public CustomFlagManager(BaseUnityPlugin owner, bool enabled = true, string url = "") {
         this._enabled = enabled;
         this._flags = new();
         this.modData = new(owner, url);
         this.owner = owner;
 
-        if (CustomFlagManager.allClassInstances.ContainsKey(modData.guid))
-            CustomFlagManager.allClassInstances.Remove(modData.guid);
+        if (allClassInstances.ContainsKey(modData.guid)) {
+            this._flags = allClassInstances[modData.guid]._flags;
+            allClassInstances[modData.guid]._flags = null!;
+            allClassInstances.Remove(modData.guid);
+            allClassInstances.Add(modData.guid, this);
 
-        CustomFlagManager.allClassInstances.Add(modData.guid, this);
+            if (!SaveManagerInstance.IsSlotLoaded) {
+                throw new Exception(string.Format(String_CustomFlagManager_ConstructorWithoutSlotsLoadedException, guid));
+            }
+        }
+        else {
+            if (inGame) {
+                Log.Warning(string.Format(String_CustomFlagManager_ConstructorInGameWarning, guid));
+                return;
+            }
+            allClassInstances.Add(modData.guid, this);
+        }
+
+        if (SaveManagerInstance.IsSlotLoaded) {
+            for (int i = 0; i < saveSlotCount; i++) {
+                if (saveModMetaDataList[i].TryGetValue(guid, out ModData modData))
+                    CheckForMissingOrDifferentVersionDesync(i, modData);
+                CheckForNewDesync(i, this);
+            }
+            if (SceneManager.GetActiveScene().name == "TitleScreenMenu")
+                NineSolsAPICore.Instance.titlescreenModifications.modList.Load();
+        }
     }
 
     public ScriptableDataBool CreateScriptableDataBool(string name, bool defaultValue = false) {

@@ -36,7 +36,7 @@ internal class TitlescreenModifications {
         if (button) return;
 
         
-        if (NineSolsAPICore.EnableSaveSlotModList) modList.Load();
+        modList.Load();
 
         
         for (int i = 0; i < 4; i++) {
@@ -237,6 +237,7 @@ internal class TitleScreenModList {
     }
 
     public void Load() {
+        if (!NineSolsAPICore.EnableSaveSlotModList) return;
         Unload();
         
         // Mod list window
