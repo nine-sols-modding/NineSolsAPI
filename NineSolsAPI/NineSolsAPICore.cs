@@ -33,7 +33,9 @@ public class NineSolsAPICore : BaseUnityPlugin {
     private RectTransform? progressBar;
 
     private ConfigEntry<bool> configDisableAchievements = null!;
+    private ConfigEntry<bool> configEnableSaveSlotModList = null!;
     internal static bool AchivementsEnabled { get => !NineSolsAPICore.Instance?.configDisableAchievements.Value ?? false; }
+    internal static bool EnableSaveSlotModList { get => NineSolsAPICore.Instance?.configEnableSaveSlotModList.Value ?? true; }
 
     private float LoadProgress {
         set {
@@ -69,6 +71,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
             ToastManager = new ToastManager();
             titlescreenModifications.Load();
             configDisableAchievements = Config.Bind("Achievements", "Disable achievements", true);
+            configEnableSaveSlotModList = Config.Bind("Main Menu", "Enable save slot mod list", true);
             SceneManager.sceneLoaded += OnSceneLoaded;
             RCGLifeCycle.DontDestroyForever(gameObject);
 

@@ -36,7 +36,14 @@ internal class TitlescreenModifications {
         if (button) return;
 
         
-        modList.Load();
+        if (NineSolsAPICore.EnableSaveSlotModList) modList.Load();
+
+        
+        for (int i = 0; i < 4; i++) {
+            string slotpath = "/MenuLogic/MainMenuLogic/Providers/StartGame SaveSlotPanel/SlotGroup/SlotGroup H/";
+            GameObject slot = GameObject.Find($"{slotpath}SaveSlotContainer_Slot{i}/SaveSlot{i}");
+            slot.GetComponent<SaveSlotUIButton>().OnSelectedEvent.AddListener((UIControlButton) => CustomFlagManager.startGameConfirmed = false);
+        }
         
         /*
         group = CreateUiControlGroup();
@@ -202,7 +209,6 @@ internal class TitleScreenModList {
     }
 
     private void DisplayModListForSelectedFile(UIControlButton button) {
-        CustomFlagManager.startGameConfirmed = false;
         if (!modListLoaded)
             LoadModList();
 
@@ -217,7 +223,6 @@ internal class TitleScreenModList {
 
     public void Unload() {
         modListLoaded = false;
-        CustomFlagManager.startGameConfirmed = false;
         GameObject.Destroy(modList_GameObject);
         GameObject.Find("MenuLogic/MainMenuLogic/Providers/StartGame SaveSlotPanel/BG").transform.GetChild(2).GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -12);
         GameObject.Find("MenuLogic/MainMenuLogic/Providers/StartGame SaveSlotPanel/BG/Frame/UselessUI").transform.localPosition = new Vector2(0, -215);
