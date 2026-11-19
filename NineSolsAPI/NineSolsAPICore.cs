@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
@@ -26,13 +26,16 @@ public class NineSolsAPICore : BaseUnityPlugin {
     private Preloader preloader = null!;
     internal ToastManager ToastManager = null!;
     internal KeybindManager KeybindManager = new();
-    private TitlescreenModifications titlescreenModifications = new();
+    internal TitlescreenModifications titlescreenModifications = new();
     private Harmony harmony = null!;
+    internal CustomFlagManager customFlagManager = null!;
 
     private RectTransform? progressBar;
 
     private ConfigEntry<bool> configDisableAchievements = null!;
+    private ConfigEntry<bool> configEnableSaveSlotModList = null!;
     internal static bool AchivementsEnabled { get => !NineSolsAPICore.Instance?.configDisableAchievements.Value ?? false; }
+    internal static bool EnableSaveSlotModList { get => NineSolsAPICore.Instance?.configEnableSaveSlotModList.Value ?? true; }
 
     private float LoadProgress {
         set {
@@ -68,14 +71,20 @@ public class NineSolsAPICore : BaseUnityPlugin {
             ToastManager = new ToastManager();
             titlescreenModifications.Load();
             configDisableAchievements = Config.Bind("Achievements", "Disable achievements", true);
+            configEnableSaveSlotModList = Config.Bind("Main Menu", "Enable save slot mod list", true);
             SceneManager.sceneLoaded += OnSceneLoaded;
             RCGLifeCycle.DontDestroyForever(gameObject);
 
             harmony = new Harmony($"harmony-auto-{(object)Guid.NewGuid()}");
             harmony.PatchAll(typeof(Patches.Patches));
             harmony.PatchAll(typeof(Patches.SteamAPI));
+            harmony.PatchAll(typeof(Patches.Transpilers)); harmony.PatchAll(typeof(Patches.Transpilers.ReadMetaInSave_TargetMethod));
+
             if (GameVersions.IsVersion(GameVersions.SpeedrunPatch))
                 harmony.PatchAll(typeof(Patches.PatchesSpeedrunpatch));
+
+            customFlagManager = new(Instance, true, "https://github.com/nine-sols-modding/NineSolsAPI");
+
         } catch (Exception e) {
             Log.Error($"Failed to initialized modding API: {e}");
         }
@@ -119,6 +128,7 @@ public class NineSolsAPICore : BaseUnityPlugin {
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode) {
         titlescreenModifications.MaybeExtendMainMenu(scene);
+        CustomFlagManager.CheckIfInGame(scene);
     }
 
     private Canvas CreateFullscreenCanvas() {
