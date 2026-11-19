@@ -263,6 +263,8 @@ public class CustomFlagManager {
 
         if (SaveManagerInstance.IsSlotLoaded) {
             for (int i = 0; i < saveSlotCount; i++) {
+                if (saveModMetaDataList[i] == null)
+                    continue;
                 if (saveModMetaDataList[i].TryGetValue(guid, out ModData modData))
                     CheckForMissingOrDifferentVersionDesync(i, modData);
                 CheckForNewDesync(i, this);
