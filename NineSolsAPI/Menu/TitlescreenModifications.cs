@@ -180,7 +180,7 @@ internal class TitleScreenModList {
         buttonClone.name = "buttonClone";
 
         for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < saveModMetaDataList[i].Count; j++) {
+            for (int j = 0; j < saveModMetaDataList[i]?.Count; j++) {
                 ModData Moddata = saveModMetaDataList[i].ElementAt(j).Value;
 
                 GameObject newButton = ObjectUtils.InstantiateAutoReference(buttonClone, buttonClone.transform.parent, false);

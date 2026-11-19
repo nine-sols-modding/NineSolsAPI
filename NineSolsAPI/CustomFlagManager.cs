@@ -49,6 +49,8 @@ public class CustomFlagManager {
     }
 
     private static void CheckForAllInstanceDesyncs(int slotIndex) {
+        if (saveModMetaDataList[slotIndex] == null)
+            return;
         foreach (ModData modData in saveModMetaDataList[slotIndex].Values)
             CheckForMissingOrDifferentVersionDesync(slotIndex, modData);
 
