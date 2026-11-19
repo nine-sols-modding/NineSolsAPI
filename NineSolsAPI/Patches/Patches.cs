@@ -47,4 +47,10 @@ public class Patches {
     private static void NewGameChangeScene(int slotIndex) {
         CustomFlagManager.InsertCustomFlags(slotIndex);
     }
+
+    [HarmonyPatch(typeof(SaveManager), nameof(SaveManager.DeleteSave))]
+    [HarmonyPrefix]
+    private static void DeleteSave(int i) {
+        CustomFlagManager.DeleteSlot(i);
+    }
 }

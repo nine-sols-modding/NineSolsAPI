@@ -168,6 +168,13 @@ public class CustomFlagManager {
         return flag;
     }
 
+    internal static void DeleteSlot(int slotIndex) {
+        saveModMetaDataList[slotIndex] = null!;
+        slotDesyncTracker[slotIndex, (int)Desyncs.Missing].Clear();
+        slotDesyncTracker[slotIndex, (int)Desyncs.DifferentVersion].Clear();
+        slotDesyncTracker[slotIndex, (int)Desyncs.New].Clear();
+    }
+
     internal static string InsertModListBeforeBinarySerialization(string? meta) {
         if (meta == null)
             return meta!;
