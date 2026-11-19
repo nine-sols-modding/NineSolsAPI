@@ -117,10 +117,11 @@ public class CustomFlagManager {
         inGame = true;
         if (insertedFlagCount > 0)
             RemoveCustomFlags();
-
-        foreach (var modData in saveModMetaDataList[slotIndex].Values)
-            if (allClassInstances.TryGetValue(modData.guid, out var instance))
-                instance._enabled = true;
+        
+        if (saveModMetaDataList[slotIndex] != null)
+            foreach (var modData in saveModMetaDataList[slotIndex].Values)
+                if (allClassInstances.TryGetValue(modData.guid, out var instance))
+                    instance._enabled = true;
         
         Log.Debug(String_InsertCustomFlags_Begin);
 
