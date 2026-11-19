@@ -173,6 +173,13 @@ public class CustomFlagManager {
         slotDesyncTracker[slotIndex, (int)Desyncs.Missing].Clear();
         slotDesyncTracker[slotIndex, (int)Desyncs.DifferentVersion].Clear();
         slotDesyncTracker[slotIndex, (int)Desyncs.New].Clear();
+        ReloadMenuModList();
+    }
+
+    private static void ReloadMenuModList()
+    {
+        if (SceneManager.GetActiveScene().name == "TitleScreenMenu")
+            NineSolsAPICore.Instance.titlescreenModifications.modList.Load();
     }
 
     internal static string InsertModListBeforeBinarySerialization(string? meta) {
@@ -277,8 +284,7 @@ public class CustomFlagManager {
                     CheckForMissingOrDifferentVersionDesync(i, modData);
                 CheckForNewDesync(i, this);
             }
-            if (SceneManager.GetActiveScene().name == "TitleScreenMenu")
-                NineSolsAPICore.Instance.titlescreenModifications.modList.Load();
+            ReloadMenuModList();
         }
     }
 
